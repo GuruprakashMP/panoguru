@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=11";
-import { createGoogleProvider } from "./google-provider.js?v=11";
-import { createMockProvider } from "./mock-provider.js?v=11";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=11";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=12";
+import { createGoogleProvider } from "./google-provider.js?v=12";
+import { createMockProvider } from "./mock-provider.js?v=12";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=12";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -22,6 +22,7 @@ const ui = {
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
   hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), refresh: $("btn-refresh"),
   resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), next: $("btn-next"),
+  viewPlace: $("btn-view-place"), peekBar: $("peek-bar"), peekBack: $("btn-peek-back"), peekNext: $("btn-peek-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
   loading: $("loading"), loadingText: $("loading-text"), toast: $("toast"),
   profileBtn: $("btn-profile"), signIn: $("btn-signin"), signOut: $("btn-signout"), userChip: $("user-chip"), userPhoto: $("user-photo"), userName: $("user-name"),
@@ -217,6 +218,7 @@ async function nextRound() {
   console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"}`);
   if (state.round < CFG.rounds) prefetchNext(); else state.next = null;
 
+  ui.peekBar.classList.add("hidden");
   ui.panoWrap.classList.remove("hidden", "invisible");
   state.provider.showPanorama(ui.pano, { panoId: loc.panoId, heading: loc.heading });
   setCompass(loc.heading);
@@ -271,6 +273,8 @@ function submitGuess() {
 }
 
 function showFinal() {
+  ui.peekBar.classList.add("hidden");
+  ui.panoWrap.classList.add("invisible");
   ui.finalScore.textContent = formatPoints(state.total);
   ui.finalMax.textContent = formatPoints(CFG.rounds * CFG.maxScorePerRound);
   ui.finalRounds.innerHTML = state.rounds.map((r, i) =>
@@ -306,6 +310,31 @@ async function share() {
     if (navigator.share) await navigator.share({ text });
     else { await navigator.clipboard.writeText(text); toast("Result copied to clipboard", "info", 2500); }
   } catch { /* user cancelled */ }
+}
+
+// ---------- look at the place again (between guess and next round) ----------
+function peekPlace() {
+  const last = state.rounds[state.rounds.length - 1];
+  if (!last) return;
+  ui.screens.result.classList.add("hidden");
+  setMapMode("hidden");
+  ui.panoWrap.classList.remove("hidden", "invisible");
+  state.provider.returnToStart();
+  state.provider.refreshView?.();
+  ui.peekNext.textContent = state.round >= CFG.rounds ? "See results \u2192" : "Next round \u2192";
+  ui.peekBar.classList.remove("hidden");
+}
+function peekBack() {
+  const last = state.rounds[state.rounds.length - 1];
+  ui.peekBar.classList.add("hidden");
+  ui.panoWrap.classList.add("invisible");
+  setMapMode("result");
+  if (last) state.provider.showResult([{ guess: last.guess, answer: last.answer }]);
+  ui.screens.result.classList.remove("hidden");
+}
+function peekNext() {
+  ui.peekBar.classList.add("hidden");
+  if (state.round >= CFG.rounds) showFinal(); else nextRound();
 }
 
 // ---------- stats & accounts ----------
@@ -389,6 +418,9 @@ function bind() {
   ui.again.addEventListener("click", startGame);
   ui.guess.addEventListener("click", submitGuess);
   ui.next.addEventListener("click", () => (state.round >= CFG.rounds ? showFinal() : nextRound()));
+  ui.viewPlace.addEventListener("click", peekPlace);
+  ui.peekBack.addEventListener("click", peekBack);
+  ui.peekNext.addEventListener("click", peekNext);
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
   ui.refresh.addEventListener("click", () => state.provider?.refreshView?.());
   ui.share.addEventListener("click", share);

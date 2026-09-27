@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -138,6 +138,7 @@
       <div class="result-meta muted small"><span id="res-country"></span></div>
       <div class="legend"><span class="pin-mini pin-guess">?</span> your guess &nbsp;&nbsp; <span class="pin-mini pin-answer">&#x2713;</span> true location</div>
       <div class="row">
+        <button id="btn-view-place" class="btn btn-ghost" type="button">&#x1F441; Look at the place</button>
         <button id="btn-next" class="btn btn-primary btn-lg" type="button">Next round</button>
       </div>
     </div>
@@ -159,6 +160,12 @@
     </div>
   </section>
 
+  <!-- "Look at the place" bar (shown over the panorama after a guess) -->
+  <div id="peek-bar" class="peek-bar hidden">
+    <button id="btn-peek-back" class="btn btn-ghost" type="button">&#x2190; Back to result</button>
+    <button id="btn-peek-next" class="btn btn-primary" type="button">Next round &#x2192;</button>
+  </div>
+
   <!-- Loading overlay -->
   <div id="loading" class="loading hidden" role="status">
     <div class="spinner"></div>
@@ -167,7 +174,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=11"></script>
-  <script type="module" src="app.js?v=11"></script>
+  <script src="config.js?v=12"></script>
+  <script type="module" src="app.js?v=12"></script>
 </body>
 </html>

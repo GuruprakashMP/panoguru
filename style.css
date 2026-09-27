@@ -232,3 +232,11 @@ a { color: var(--primary-hover); }
 .stat-list:empty::after { content: "Not enough data yet"; color: var(--muted); font-size: 0.85rem; }
 .bar { height: 5px; border-radius: 3px; background: var(--primary); margin-top: 4px; opacity: 0.85; }
 @media (max-width: 480px) { .stat-cols { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(3, 1fr); } }
+
+/* Look-at-the-place mode after a guess */
+.peek-bar {
+  position: fixed; top: calc(10px + var(--safe-t)); left: 50%; transform: translateX(-50%); z-index: 30;
+  display: flex; gap: 8px; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 6px; border-radius: 999px; backdrop-filter: blur(6px);
+  max-width: calc(100vw - 16px);
+}
+.peek-bar .btn { white-space: nowrap; padding: 10px 14px; }
