@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=6";
-import { createGoogleProvider } from "./google-provider.js?v=6";
-import { createMockProvider } from "./mock-provider.js?v=6";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=7";
+import { createGoogleProvider } from "./google-provider.js?v=7";
+import { createMockProvider } from "./mock-provider.js?v=7";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -213,8 +213,7 @@ async function nextRound() {
 }
 
 function onMapClick(point) {
-  const desktop = matchMedia("(pointer: fine)").matches;
-  if (!ui.screens.game.classList.contains("hidden") && (desktop || !ui.mapWrap.classList.contains("mini"))) {
+  if (!ui.screens.game.classList.contains("hidden") && !ui.mapWrap.classList.contains("mini")) {
     state.guess = point;
     state.provider.setGuess(point);
     ui.guess.disabled = false;
@@ -286,7 +285,7 @@ function bind() {
   ui.next.addEventListener("click", () => (state.round >= CFG.rounds ? showFinal() : nextRound()));
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
   ui.share.addEventListener("click", share);
-  // Phones: tap the small map to open it. Desktop: the small map is directly usable; the corner button toggles the size.
+  // The small map is a thumbnail: click/tap it to open the big map, place the pin there, Guess. The corner button shrinks it again.
   ui.mapTap.addEventListener("click", () => setMapMode("expanded"));
   ui.mapClose.addEventListener("click", () => setMapMode(ui.mapWrap.classList.contains("expanded") ? "mini" : "expanded"));
   ui.saveKey.addEventListener("click", () => {

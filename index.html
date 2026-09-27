@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -18,7 +18,7 @@
   <!-- Guess / result map (single instance, reused everywhere) -->
   <div id="map-wrap" class="hidden">
     <div id="map"></div>
-    <button id="map-tap" class="map-tap" type="button" aria-label="Open the map"></button>
+    <button id="map-tap" class="map-tap" type="button" aria-label="Open the map"><span class="map-tap-label">&#x26F6; Open map</span></button>
     <div class="map-controls">
       <div id="map-hint" class="map-hint"><span class="pin-mini pin-guess">?</span> Tap the map where you think you are</div>
       <button id="map-close" class="btn btn-ghost btn-sm" type="button" aria-label="Shrink map">&#x2715;</button>
@@ -112,7 +112,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=6"></script>
-  <script type="module" src="app.js?v=6"></script>
+  <script src="config.js?v=7"></script>
+  <script type="module" src="app.js?v=7"></script>
 </body>
 </html>
