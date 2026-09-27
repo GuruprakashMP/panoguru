@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=15";
-import { createGoogleProvider } from "./google-provider.js?v=15";
-import { createMockProvider } from "./mock-provider.js?v=15";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=15";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=16";
+import { createGoogleProvider } from "./google-provider.js?v=16";
+import { createMockProvider } from "./mock-provider.js?v=16";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=16";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -21,7 +21,7 @@ const ui = {
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
   hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), hudProfile: $("btn-hud-profile"), hudAvatar: $("hud-avatar"), hudProfileIcon: $("hud-profile-icon"),
-  resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), next: $("btn-next"),
+  resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), resLinks: $("res-links"), next: $("btn-next"),
   viewPlace: $("btn-view-place"), peekBar: $("peek-bar"), peekBack: $("btn-peek-back"), peekNext: $("btn-peek-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
   loading: $("loading"), loadingText: $("loading-text"), toast: $("toast"),
@@ -192,13 +192,15 @@ async function findLocation(onProgress, forRound = state.round + 1) {
       const town = Math.random() < pTown ? pointNearTown(country) : null;
       const pt = town || randomPointInCountry(country);
       const radiusKm = town ? Math.min(country.km, CFG.townSearchKm || 10) : country.km;
-      const strict = attempts % 2 === 0; // alternate: official-only search, then any outdoor imagery
+      // Official Google imagery only (user-uploaded 360 photos are often geotagged wrongly).
+      // Only if official searches keep failing do we alternate with "any outdoor imagery".
+      const strict = attempts < 9 || attempts % 2 === 0;
       attempts++;
-      batch.push(state.provider.findPanorama(pt, radiusKm, { strict }).then((r) => ({ r, country, town: !!town })));
+      batch.push(state.provider.findPanorama(pt, radiusKm, { strict }).then((r) => ({ r, country, town: !!town, strict })));
     }
     const results = await Promise.all(batch);
-    for (const { r, country, town } of results) {
-      if (r?.status === "OK") { const loc = buildLocation(r, country); loc.kind = town ? "town" : "wild"; return loc; }
+    for (const { r, country, town, strict } of results) {
+      if (r?.status === "OK") { const loc = buildLocation(r, country); loc.kind = town ? "town" : "wild"; loc.source = strict ? "google" : "any"; return loc; }
       const s = r?.status || "NONE";
       statuses[s] = (statuses[s] || 0) + 1;
     }
@@ -241,6 +243,11 @@ async function startGame() {
 }
 
 async function nextRound() {
+  if (state.loadingRound) return; // ignore double clicks on "Next round"
+  state.loadingRound = true;
+  try { await nextRoundInner(); } finally { state.loadingRound = false; }
+}
+async function nextRoundInner() {
   setLoading(true, "Finding a place…");
   let loc = await state.next;
   if (!loc) {
@@ -258,7 +265,7 @@ async function nextRound() {
   state.round += 1;
   state.guess = null;
   state.panoRetries = 0;
-  console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"} (${loc.kind || "fallback"})`);
+  console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"} (${loc.kind || "fallback"}, imagery: ${loc.source || "google"}) https://www.google.com/maps/@?api=1&map_action=pano&pano=${loc.panoId}`);
   if (state.round < CFG.rounds) prefetchNext(); else state.next = null;
 
   ui.peekBar.classList.add("hidden");
@@ -289,7 +296,8 @@ function onMapClick(point) {
 }
 
 function submitGuess() {
-  if (!state.guess || !state.current || state.busy) return;
+  if (!state.guess || !state.current || state.busy || state.loadingRound) return;
+  if (ui.screens.game.classList.contains("hidden")) return; // already answered
   const answer = { lat: state.current.lat, lng: state.current.lng };
   const km = haversineKm(state.guess, answer);
   const points = scoreForDistance(km, CFG);
@@ -300,6 +308,8 @@ function submitGuess() {
   ui.resDistance.textContent = formatDistance(km);
   ui.resPoints.textContent = formatPoints(points);
   ui.resCountry.textContent = roundInfo.place ? `It was in ${roundInfo.place}` : "";
+  roundInfo.panoId = state.current.panoId;
+  ui.resLinks.innerHTML = placeLinks(answer, state.current.panoId);
   if (CFG.useGeocoder && state.provider.placeName) {
     // Upgrade to "Town, Region, Country" when the Geocoding API is available (async, non-blocking).
     state.provider.placeName(answer).then((name) => {
@@ -321,7 +331,7 @@ function showFinal() {
   ui.finalScore.textContent = formatPoints(state.total);
   ui.finalMax.textContent = formatPoints(CFG.rounds * CFG.maxScorePerRound);
   ui.finalRounds.innerHTML = state.rounds.map((r, i) =>
-    `<li><span>Round ${i + 1} · ${escapeHtml(r.place || r.country || "?")}</span><span class="muted">${formatDistance(r.km)}</span><span>${formatPoints(r.points)}</span></li>`
+    `<li><span>Round ${i + 1} · ${escapeHtml(r.place || r.country || "?")} <a class="pin-link" href="${mapsUrl(r.answer)}" target="_blank" rel="noopener" title="Open in Google Maps">&#x1F4CD;</a></span><span class="muted">${formatDistance(r.km)}</span><span>${formatPoints(r.points)}</span></li>`
   ).join("");
   const best = Number(storage(true, LS_BEST) || 0);
   if (state.total > best) { storage(false, LS_BEST, String(state.total)); }
@@ -353,6 +363,15 @@ async function share() {
     if (navigator.share) await navigator.share({ text });
     else { await navigator.clipboard.writeText(text); toast("Result copied to clipboard", "info", 2500); }
   } catch { /* user cancelled */ }
+}
+
+// ---------- verification links ----------
+function mapsUrl(pt) { return `https://www.google.com/maps/search/?api=1&query=${pt.lat.toFixed(6)}%2C${pt.lng.toFixed(6)}`; }
+function panoUrl(panoId) { return `https://www.google.com/maps/@?api=1&map_action=pano&pano=${encodeURIComponent(panoId)}`; }
+function placeLinks(pt, panoId) {
+  const coords = `${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}`;
+  return `<span class="coords">${coords}</span> &middot; <a href="${mapsUrl(pt)}" target="_blank" rel="noopener">&#x1F4CD; Open in Google Maps</a>` +
+    (panoId && !String(panoId).startsWith("mock:") ? ` &middot; <a href="${panoUrl(panoId)}" target="_blank" rel="noopener">Street View</a>` : "");
 }
 
 // ---------- look at the place again (between guess and next round) ----------

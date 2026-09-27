@@ -244,3 +244,8 @@ a { color: var(--primary-hover); }
 /* Profile button in the game bar */
 .hud-profile { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; }
 .hud-avatar { border-radius: 50%; display: block; }
+
+/* verification links */
+.res-links { margin-top: 4px; color: var(--muted); }
+.res-links .coords { font-variant-numeric: tabular-nums; }
+.pin-link { text-decoration: none; margin-left: 4px; }
