@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=11" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -34,16 +34,55 @@
       <p class="tagline" data-tagline>Guess the World</p>
       <p class="lead">You are dropped somewhere on Earth. Look around, walk the road, then pin the spot on the map. Five rounds, up to 5,000 points each.</p>
       <button id="btn-play" class="btn btn-primary btn-lg" type="button">Play</button>
+      <div class="row row-tight">
+        <button id="btn-profile" class="btn btn-ghost btn-sm" type="button">&#x1F4CA; My stats</button>
+        <button id="btn-signin" class="btn btn-ghost btn-sm hidden" type="button"><span class="g-logo">G</span> Sign in with Google</button>
+        <div id="user-chip" class="user-chip hidden"><img id="user-photo" class="user-photo" alt="" width="24" height="24" /><span id="user-name"></span><button id="btn-signout" class="link-btn" type="button">Sign out</button></div>
+      </div>
       <p id="best-line" class="muted small hidden">Best game: <b id="best-score">0</b> pts</p>
-      <details class="how">
+      <details class="how" open>
         <summary>How to play</summary>
         <ul>
-          <li>Drag to look around, pinch or scroll to zoom, tap the arrows to move.</li>
-          <li>Tap the small map to open it, tap where you think you are, then press <b>Guess</b>.</li>
+          <li>Drag to look around, pinch or scroll to zoom, tap the arrows to move. <b>&#x27F3; View</b> redraws the picture if it goes black, <b>&#x21BA; Start</b> returns to the start.</li>
+          <li>Press <b>Open map</b>, tap where you think you are, then <b>Guess</b>.</li>
           <li>Score = 5000 &middot; e<sup>&minus;distance / 1493 km</sup>. Within 25 m = perfect.</li>
         </ul>
       </details>
       <p class="muted tiny attribution">Imagery and maps &copy; Google. Country outlines: Natural Earth. <a data-repo-link href="#" target="_blank" rel="noopener">Source code</a> &middot; <a href="#" id="link-key" class="hidden">Change API key</a></p>
+    </div>
+  </section>
+
+  <!-- Profile / stats -->
+  <section id="screen-profile" class="screen hidden">
+    <div class="card profile-card">
+      <div class="profile-head">
+        <img id="profile-photo" class="profile-photo hidden" alt="" width="56" height="56" />
+        <div>
+          <h2 id="profile-name" class="profile-name">Your stats</h2>
+          <div id="profile-sub" class="muted small">Stored on this device only</div>
+        </div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="tile-v" id="st-games">0</div><div class="tile-l">games</div></div>
+        <div class="tile"><div class="tile-v" id="st-best">0</div><div class="tile-l">best game</div></div>
+        <div class="tile"><div class="tile-v" id="st-avg">0</div><div class="tile-l">avg per game</div></div>
+        <div class="tile"><div class="tile-v" id="st-avgkm">0</div><div class="tile-l">avg distance</div></div>
+        <div class="tile"><div class="tile-v" id="st-level">Rookie</div><div class="tile-l">level</div></div>
+        <div class="tile"><div class="tile-v" id="st-countries">0</div><div class="tile-l">countries seen</div></div>
+      </div>
+      <div id="st-empty" class="muted small hidden">Play a game and your numbers appear here.</div>
+      <div class="stat-cols">
+        <div><h3 class="stat-h">Strongest countries</h3><ol id="st-strong" class="stat-list"></ol></div>
+        <div><h3 class="stat-h">Needs practice</h3><ol id="st-weak" class="stat-list"></ol></div>
+      </div>
+      <h3 class="stat-h">By continent</h3>
+      <ol id="st-continents" class="stat-list"></ol>
+      <h3 class="stat-h">Recent games</h3>
+      <ol id="st-recent" class="stat-list"></ol>
+      <div class="row">
+        <button id="btn-profile-back" class="btn btn-primary" type="button">Back</button>
+        <button id="btn-profile-signin" class="btn btn-ghost hidden" type="button"><span class="g-logo">G</span> Sign in to keep stats everywhere</button>
+      </div>
     </div>
   </section>
 
@@ -128,7 +167,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=10"></script>
-  <script type="module" src="app.js?v=10"></script>
+  <script src="config.js?v=11"></script>
+  <script type="module" src="app.js?v=11"></script>
 </body>
 </html>

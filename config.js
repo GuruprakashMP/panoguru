@@ -18,6 +18,19 @@ window.PANOGURU_CONFIG = {
   // Google Cloud and allowed on the key; 10,000 free requests per month).
   useGeocoder: false,
 
+  // Player accounts (Google sign-in + cloud-saved stats). Leave null to keep
+  // stats on the device only. To enable: create a Firebase project (see README,
+  // section "Player accounts") and paste its web config object here, e.g.
+  // firebase: { apiKey: "...", authDomain: "xxx.firebaseapp.com", projectId: "xxx", appId: "..." },
+  firebase: {
+    apiKey: "AIzaSyAOLmSjP9XUt9iozqYINqw4DcJ9hrTeJeA",
+    authDomain: "pelagic-force-509911-p6.firebaseapp.com",
+    projectId: "pelagic-force-509911-p6",
+    storageBucket: "pelagic-force-509911-p6.firebasestorage.app",
+    messagingSenderId: "214389893616",
+    appId: "1:214389893616:web:c43cabacb4d6693bd95535",
+  },
+
   // Game rules
   rounds: 5,
   maxScorePerRound: 5000,

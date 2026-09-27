@@ -1,7 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=10";
-import { createGoogleProvider } from "./google-provider.js?v=10";
-import { createMockProvider } from "./mock-provider.js?v=10";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=11";
+import { createGoogleProvider } from "./google-provider.js?v=11";
+import { createMockProvider } from "./mock-provider.js?v=11";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=11";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -16,18 +17,23 @@ const $ = (id) => document.getElementById(id);
 
 const ui = {
   pano: $("pano"), panoWrap: $("pano-wrap"), mapWrap: $("map-wrap"), map: $("map"), mapTap: $("map-tap"), mapClose: $("map-close"), guess: $("btn-guess"), mapHint: $("map-hint"), openMap: $("btn-open-map"), compassRose: $("compass-rose"),
-  screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final") },
+  screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final"), profile: $("screen-profile") },
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
   hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), refresh: $("btn-refresh"),
   resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), next: $("btn-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
   loading: $("loading"), loadingText: $("loading-text"), toast: $("toast"),
+  profileBtn: $("btn-profile"), signIn: $("btn-signin"), signOut: $("btn-signout"), userChip: $("user-chip"), userPhoto: $("user-photo"), userName: $("user-name"),
+  profileBack: $("btn-profile-back"), profileSignIn: $("btn-profile-signin"), profilePhoto: $("profile-photo"), profileName: $("profile-name"), profileSub: $("profile-sub"),
+  st: { games: $("st-games"), best: $("st-best"), avg: $("st-avg"), avgkm: $("st-avgkm"), level: $("st-level"), countries: $("st-countries"), empty: $("st-empty"),
+        strong: $("st-strong"), weak: $("st-weak"), continents: $("st-continents"), recent: $("st-recent") },
 };
 
 const state = {
   provider: null, mock: params.get("mock") === "1", countries: [],
   round: 0, total: 0, rounds: [], current: null, next: null, guess: null, busy: false,
+  stats: emptyStats(), cloud: null, user: null,
 };
 
 // ---------- small UI helpers ----------
@@ -127,7 +133,7 @@ function buildLocation(found, country) {
   // Street View's own description (street / town / region), plus the country if it is not already mentioned.
   const desc = (found.description || "").trim();
   const place = desc && countryName && !desc.toLowerCase().includes(countryName.toLowerCase()) ? `${desc}, ${countryName}` : (desc || countryName);
-  return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: countryName, place, heading: Math.floor(Math.random() * 360) };
+  return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: countryName, countryCode: actual?.c || "", continent: actual?.ct || "", place, heading: Math.floor(Math.random() * 360) };
 }
 
 async function findLocation(onProgress) {
@@ -243,7 +249,7 @@ function submitGuess() {
   const km = haversineKm(state.guess, answer);
   const points = scoreForDistance(km, CFG);
   state.total += points;
-  const roundInfo = { guess: state.guess, answer, km, points, country: state.current.country, place: state.current.place || state.current.country };
+  const roundInfo = { guess: state.guess, answer, km, points, country: state.current.country, countryCode: state.current.countryCode, continent: state.current.continent, place: state.current.place || state.current.country };
   state.rounds.push(roundInfo);
   ui.hudScore.textContent = formatPoints(state.total);
   ui.resDistance.textContent = formatDistance(km);
@@ -273,6 +279,7 @@ function showFinal() {
   const best = Number(storage(true, LS_BEST) || 0);
   if (state.total > best) { storage(false, LS_BEST, String(state.total)); }
   updateBest();
+  recordGame();
   setMapMode("final");
   state.provider.showResult(state.rounds.map((r) => ({ guess: r.guess, answer: r.answer })));
   showScreen("final");
@@ -301,6 +308,81 @@ async function share() {
   } catch { /* user cancelled */ }
 }
 
+// ---------- stats & accounts ----------
+function recordGame() {
+  const game = {
+    at: Date.now(), total: state.total,
+    rounds: state.rounds.map((r) => ({ country: r.country, countryCode: r.countryCode, continent: r.continent, km: Math.round(r.km * 10) / 10, points: r.points, place: r.place || "" })),
+  };
+  applyGame(state.stats, game);
+  saveLocal(state.stats);
+  if (state.cloud && state.user) {
+    state.cloud.saveGame(state.user.uid, { name: state.user.displayName, photo: state.user.photoURL }, state.stats, game)
+      .catch((err) => { console.warn(err); toast("Could not save the game to your profile (offline?).", "error", 4000); });
+  }
+}
+
+function renderProfile() {
+  const st = state.stats, sum = summarize(st);
+  const signedIn = !!state.user;
+  ui.profilePhoto.classList.toggle("hidden", !signedIn || !state.user.photoURL);
+  if (signedIn && state.user.photoURL) ui.profilePhoto.src = state.user.photoURL;
+  ui.profileName.textContent = signedIn ? (state.user.displayName || "Player") : "Your stats";
+  ui.profileSub.textContent = signedIn ? "Saved to your Google account, available on every device" : (state.cloud ? "Stored on this device only. Sign in to keep them everywhere." : "Stored on this device only");
+  ui.profileSignIn.classList.toggle("hidden", signedIn || !state.cloud);
+  ui.st.games.textContent = st.games;
+  ui.st.best.textContent = formatPoints(st.best || 0);
+  ui.st.avg.textContent = formatPoints(sum.avgGame);
+  ui.st.avgkm.textContent = st.rounds ? formatDistance(sum.avgKm) : "–";
+  ui.st.level.textContent = sum.level;
+  ui.st.countries.textContent = sum.countriesSeen;
+  ui.st.empty.classList.toggle("hidden", st.games > 0);
+  const li = (label, sub, value, pct) => `<li><span>${escapeHtml(label)}${sub ? ` <span class="sub">${escapeHtml(sub)}</span>` : ""}${pct != null ? `<div class="bar" style="width:${Math.max(4, Math.round(pct))}%"></div>` : ""}</span><span>${value}</span></li>`;
+  ui.st.strong.innerHTML = sum.strongest.map((c) => li(c.name, `${c.rounds} rounds`, formatPoints(c.avg), c.avg / 50)).join("");
+  ui.st.weak.innerHTML = sum.weakest.map((c) => li(c.name, `${c.rounds} rounds · ${formatDistance(c.avgKm)} off`, formatPoints(c.avg), c.avg / 50)).join("");
+  ui.st.continents.innerHTML = sum.continents.map((k) => li(k.name, `${k.rounds} rounds · ${formatDistance(k.avgKm)} off`, formatPoints(k.avg) + " avg", k.avg / 50)).join("");
+  ui.st.recent.innerHTML = (st.recent || []).map((g) => li(new Date(g.at).toLocaleDateString(), (g.places || []).slice(0, 5).join(", "), formatPoints(g.total))).join("");
+}
+
+function showProfile() {
+  renderProfile();
+  showScreen("profile");
+}
+
+function applyUser(user) {
+  state.user = user || null;
+  ui.signIn.classList.toggle("hidden", !state.cloud || !!user);
+  ui.userChip.classList.toggle("hidden", !user);
+  if (user) {
+    ui.userName.textContent = user.displayName || user.email || "Signed in";
+    if (user.photoURL) { ui.userPhoto.src = user.photoURL; ui.userPhoto.classList.remove("hidden"); } else ui.userPhoto.classList.add("hidden");
+    state.cloud.loadStats(user.uid).then((cloudStats) => {
+      if (cloudStats) {
+        state.stats = cloudStats;
+      } else if (state.stats.games > 0) {
+        // first sign-in on a device that already has local games: keep them
+        state.cloud.saveStats(user.uid, { name: user.displayName, photo: user.photoURL }, state.stats).catch(console.warn);
+      }
+      saveLocal(state.stats);
+      updateBest();
+      if (!ui.screens.profile.classList.contains("hidden")) renderProfile();
+    }).catch((err) => { console.warn(err); toast("Could not load your profile. Check the Firestore rules (see README).", "error", 6000); });
+  } else {
+    state.stats = loadLocal();
+  }
+}
+
+async function doSignIn() {
+  if (!state.cloud) return;
+  try { await state.cloud.signIn(); toast("Signed in", "info", 2000); }
+  catch (err) {
+    console.warn(err);
+    const code = err?.code || "";
+    toast(code.includes("popup-closed") ? "Sign-in cancelled." : `Sign-in failed (${code || err?.message || err}). Is guruprakashmp.github.io an authorized domain in Firebase?`, "error", 8000);
+  }
+}
+async function doSignOut() { try { await state.cloud?.signOut(); toast("Signed out", "info", 2000); } catch (err) { console.warn(err); } }
+
 // ---------- events ----------
 function bind() {
   ui.play.addEventListener("click", startGame);
@@ -310,6 +392,11 @@ function bind() {
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
   ui.refresh.addEventListener("click", () => state.provider?.refreshView?.());
   ui.share.addEventListener("click", share);
+  ui.profileBtn.addEventListener("click", showProfile);
+  ui.profileBack.addEventListener("click", () => showScreen("menu"));
+  ui.signIn.addEventListener("click", doSignIn);
+  ui.profileSignIn.addEventListener("click", doSignIn);
+  ui.signOut.addEventListener("click", doSignOut);
   // The small map is a thumbnail: click/tap it to open the big map, place the pin there, Guess. The corner button shrinks it again.
   ui.mapTap.addEventListener("click", () => setMapMode("expanded"));
   ui.openMap.addEventListener("click", () => setMapMode("expanded"));
@@ -341,6 +428,12 @@ async function init() {
   ui.linkKey.classList.toggle("hidden", !!CFG.googleMapsApiKey);
   updateBest();
   bind();
+  state.stats = loadLocal();
+  state.cloud = createCloud(CFG.firebase);
+  ui.signIn.classList.toggle("hidden", !state.cloud);
+  if (state.cloud) {
+    state.cloud.load().then(() => state.cloud.onUser(applyUser)).catch((err) => { console.warn("Firebase unavailable", err); ui.signIn.classList.add("hidden"); });
+  }
   try {
     const res = await fetch("countries.json");
     state.countries = (await res.json()).countries;

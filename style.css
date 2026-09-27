@@ -207,3 +207,28 @@ a { color: var(--primary-hover); }
   box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
 }
 .map-hint .pin-mini { flex: 0 0 20px; }
+
+/* Sign-in + profile */
+.row-tight { margin-top: 10px; gap: 8px; align-items: center; }
+.g-logo { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #fff; color: #4285f4; font-weight: 800; font-size: 12px; line-height: 18px; text-align: center; margin-right: 4px; }
+.user-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+.user-photo { border-radius: 50%; }
+.link-btn { background: none; border: 0; color: var(--primary-hover); cursor: pointer; font: inherit; font-size: 0.85rem; padding: 0; text-decoration: underline; }
+.profile-card { text-align: left; max-width: 560px; }
+.profile-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.profile-photo { border-radius: 50%; }
+.profile-name { margin: 0; font-size: 1.4rem; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
+.tile-v { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tile-l { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+.stat-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat-h { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 16px 0 6px; }
+.stat-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.stat-list li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: 1px solid var(--border); }
+.stat-list li > span:first-child { flex: 1; min-width: 0; }
+.stat-list li > span:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.stat-list .sub { color: var(--muted); font-size: 0.8rem; }
+.stat-list:empty::after { content: "Not enough data yet"; color: var(--muted); font-size: 0.85rem; }
+.bar { height: 5px; border-radius: 3px; background: var(--primary); margin-top: 4px; opacity: 0.85; }
+@media (max-width: 480px) { .stat-cols { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(3, 1fr); } }

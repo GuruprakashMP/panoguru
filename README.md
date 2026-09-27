@@ -56,6 +56,46 @@ python -m http.server 8000
 then open http://localhost:8000/ (or http://localhost:8000/?mock=1 to play
 the offline mock version without a key).
 
+## Player accounts (optional): Google sign-in + cloud-saved stats
+
+Without this, stats are kept in the browser only ("My stats" on the menu).
+With Firebase (free tier, no card) players sign in with Google and their
+stats follow them on every device.
+
+1. https://console.firebase.google.com → **Add project** → pick your existing
+   Google Cloud project (the one that owns the Maps key) → disable Analytics → Create.
+2. Build → **Authentication** → Get started → Sign-in method → **Google** → Enable
+   (choose a support email) → Save. Then Authentication → Settings →
+   **Authorized domains** → Add `guruprakashmp.github.io`.
+3. Build → **Firestore Database** → Create database → location e.g. `eur3` →
+   **Production mode** → Create. Then **Rules** tab, replace everything with:
+
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{uid} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+         match /games/{gameId} {
+           allow read, write: if request.auth != null && request.auth.uid == uid;
+         }
+       }
+     }
+   }
+   ```
+
+   → Publish.
+4. Project settings (gear) → Your apps → **Web app** (</>) → nickname `panoguru`,
+   no hosting → Register → copy the `firebaseConfig` object.
+5. Paste it into `config.js`:
+
+   ```js
+   firebase: { apiKey: "...", authDomain: "....firebaseapp.com", projectId: "...", appId: "..." },
+   ```
+
+The Firebase web config is meant to be public; the Firestore rules above are
+what protect the data (each player can only read and write their own document).
+
 ## Files
 
 | File | Purpose |
@@ -66,7 +106,8 @@ the offline mock version without a key).
 | `google-provider.js` | Street View + Google Map adapter (one instance each, reused every round) |
 | `mock-provider.js` | key-free stand-in used by `?mock=1` |
 | `countries.json` | simplified outlines of ~107 countries with Street View coverage (Natural Earth, public domain) with per-country weights and search radius |
-| `config.js` | name, tagline, API key, rules |
+| `stats.js` | player statistics (local storage, and Firebase sign-in + Firestore when configured) |
+| `config.js` | name, tagline, API key, rules, optional Firebase config |
 | `manifest.webmanifest`, `sw.js`, `icon*.png/svg` | installable web app |
 
 ## Rules
