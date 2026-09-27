@@ -64,6 +64,16 @@ async function ensureProvider() {
   const key = CFG.googleMapsApiKey || storage(true, LS_KEY) || "";
   if (!key) { showScreen("setup"); return false; }
   state.provider = createGoogleProvider(key, {
+    onPanoStatus: (status, panoId) => {
+      // The chosen panorama could not be displayed: report and move to another place (max 3 times per round).
+      state.panoRetries = (state.panoRetries || 0) + 1;
+      toast(`Street View could not load this place (${status}). ${state.panoRetries <= 3 ? "Trying another…" : ""}`, "info", 5000);
+      if (state.panoRetries <= 3 && !ui.screens.game.classList.contains("hidden")) {
+        state.round -= 1; // redo this round number with a new location
+        prefetchNext();
+        nextRound();
+      }
+    },
     onAuthError: () => {
       state.provider = null;
       setLoading(false);
@@ -111,6 +121,7 @@ async function findLocation(onProgress) {
   let attempts = 0;
   const statuses = {};
   while (Date.now() < deadline && attempts < (CFG.maxAttempts || 45)) {
+    if (!state.provider) throw new Error("Map provider unavailable (API key rejected?)");
     const batch = [];
     for (let i = 0; i < parallel; i++) {
       const country = weightedPick(countries, "w");
@@ -169,6 +180,7 @@ async function nextRound() {
   if (!loc) {
     try { loc = await findLocation(searchProgress); } catch (err) { console.error(err); state.lastError = String(err?.message || err); }
   }
+  if (!state.provider) { setLoading(false); return; } // key was rejected meanwhile; setup screen is showing
   if (!loc) {
     setLoading(false);
     toast(`Could not find a Street View location. ${state.lastError || ""}`.trim(), "error", 12000);
@@ -179,6 +191,8 @@ async function nextRound() {
   state.current = loc;
   state.round += 1;
   state.guess = null;
+  state.panoRetries = 0;
+  console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"}`);
   if (state.round < CFG.rounds) prefetchNext(); else state.next = null;
 
   ui.pano.classList.remove("hidden", "invisible");

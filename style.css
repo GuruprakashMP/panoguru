@@ -82,7 +82,7 @@ a { color: var(--primary-hover); }
 .attribution { margin: 18px 0 0; line-height: 1.5; }
 
 /* Panorama */
-#pano { position: fixed; inset: 0; z-index: 1; background: #000; }
+#pano { position: fixed; inset: 0; z-index: 1; background: #000 !important; }
 
 /* HUD */
 .hud { display: flex; gap: 8px; align-items: center; width: 100%; padding-top: var(--safe-t); }

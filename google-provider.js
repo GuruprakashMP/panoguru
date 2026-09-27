@@ -26,7 +26,7 @@ const ANSWER_ICON = {
   fillColor: "#10b981", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 2.5, scale: 1,
 };
 
-export function createGoogleProvider(apiKey, { onAuthError } = {}) {
+export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {}) {
   let libs = null;
   let pano = null;
   let map = null;
@@ -107,6 +107,12 @@ export function createGoogleProvider(apiKey, { onAuthError } = {}) {
         scrollwheel: true,
         visible: true,
       });
+      pano.addListener("status_changed", () => {
+        const s = pano.getStatus();
+        console.info("[panoguru] panorama status:", s, pano.getPano());
+        if (s !== "OK") onPanoStatus?.(s, pano.getPano());
+      });
+      pano.addListener("pano_changed", () => console.info("[panoguru] pano_changed:", pano.getPano()));
       return;
     }
     pano.setPano(panoId);
