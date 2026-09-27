@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="style.css?v=13" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -43,7 +43,7 @@
       <details class="how" open>
         <summary>How to play</summary>
         <ul>
-          <li>Drag to look around, pinch or scroll to zoom, tap the arrows to move. <b>&#x27F3; View</b> redraws the picture if it goes black, <b>&#x21BA; Start</b> returns to the start.</li>
+          <li>Drag to look around, pinch or scroll to zoom, tap the arrows to move. <b>&#x21BA; Start</b> returns to the start; press <b>R</b> if the picture ever goes black.</li>
           <li>Press <b>Open map</b>, tap where you think you are, then <b>Guess</b>.</li>
           <li>Score = 5000 &middot; e<sup>&minus;distance / 1493 km</sup>. Within 25 m = perfect.</li>
         </ul>
@@ -121,8 +121,8 @@
           <polygon points="50,2 46,10 54,10" fill="#fbbf24"/>
         </svg>
       </div>
-      <button id="btn-refresh" class="btn btn-ghost btn-sm" type="button" title="Redraw the view if it goes black">&#x27F3; View</button>
       <button id="btn-return" class="btn btn-ghost btn-sm" type="button" title="Return to the starting point">&#x21BA; Start</button>
+      <button id="btn-hud-profile" class="btn btn-ghost btn-sm hud-profile" type="button" title="My profile and stats"><img id="hud-avatar" class="hud-avatar hidden" alt="" width="22" height="22" /><span id="hud-profile-icon">&#x1F464;</span></button>
     </div>
     <button id="btn-open-map" class="btn btn-primary map-open-btn hidden" type="button">&#x1F5FA;&#xFE0F; Open map</button>
   </section>
@@ -174,7 +174,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=12"></script>
-  <script type="module" src="app.js?v=12"></script>
+  <script src="config.js?v=13"></script>
+  <script type="module" src="app.js?v=13"></script>
 </body>
 </html>

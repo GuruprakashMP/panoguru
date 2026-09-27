@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=12";
-import { createGoogleProvider } from "./google-provider.js?v=12";
-import { createMockProvider } from "./mock-provider.js?v=12";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=12";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=13";
+import { createGoogleProvider } from "./google-provider.js?v=13";
+import { createMockProvider } from "./mock-provider.js?v=13";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=13";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -20,7 +20,7 @@ const ui = {
   screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final"), profile: $("screen-profile") },
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
-  hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), refresh: $("btn-refresh"),
+  hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), hudProfile: $("btn-hud-profile"), hudAvatar: $("hud-avatar"), hudProfileIcon: $("hud-profile-icon"),
   resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), next: $("btn-next"),
   viewPlace: $("btn-view-place"), peekBar: $("peek-bar"), peekBack: $("btn-peek-back"), peekNext: $("btn-peek-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
@@ -374,14 +374,27 @@ function renderProfile() {
 }
 
 function showProfile() {
+  state.profileReturn = ui.screens.game.classList.contains("hidden") ? "menu" : "game";
   renderProfile();
+  ui.openMap.classList.add("hidden");
   showScreen("profile");
+}
+function closeProfile() {
+  if (state.profileReturn === "game") {
+    showScreen("game");
+    ui.openMap.classList.toggle("hidden", !ui.mapWrap.classList.contains("mini-hidden"));
+  } else {
+    showScreen("menu");
+  }
 }
 
 function applyUser(user) {
   state.user = user || null;
   ui.signIn.classList.toggle("hidden", !state.cloud || !!user);
   ui.userChip.classList.toggle("hidden", !user);
+  ui.hudAvatar.classList.toggle("hidden", !(user && user.photoURL));
+  ui.hudProfileIcon.classList.toggle("hidden", !!(user && user.photoURL));
+  if (user && user.photoURL) ui.hudAvatar.src = user.photoURL;
   if (user) {
     ui.userName.textContent = user.displayName || user.email || "Signed in";
     if (user.photoURL) { ui.userPhoto.src = user.photoURL; ui.userPhoto.classList.remove("hidden"); } else ui.userPhoto.classList.add("hidden");
@@ -422,10 +435,10 @@ function bind() {
   ui.peekBack.addEventListener("click", peekBack);
   ui.peekNext.addEventListener("click", peekNext);
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
-  ui.refresh.addEventListener("click", () => state.provider?.refreshView?.());
   ui.share.addEventListener("click", share);
   ui.profileBtn.addEventListener("click", showProfile);
-  ui.profileBack.addEventListener("click", () => showScreen("menu"));
+  ui.profileBack.addEventListener("click", closeProfile);
+  ui.hudProfile.addEventListener("click", showProfile);
   ui.signIn.addEventListener("click", doSignIn);
   ui.profileSignIn.addEventListener("click", doSignIn);
   ui.signOut.addEventListener("click", doSignOut);

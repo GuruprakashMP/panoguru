@@ -92,7 +92,7 @@ a { color: var(--primary-hover); }
   border-radius: 999px; padding: 7px 12px; font-size: 0.9rem; font-variant-numeric: tabular-nums;
 }
 .chip-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
-#btn-refresh { margin-left: auto; }
+#btn-return { margin-left: auto; }
 .compass { display: flex; align-items: center; margin-left: 4px; }
 .compass svg { display: block; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); }
 #compass-rose { transform-origin: 50px 50px; transition: transform 0.12s linear; }
@@ -240,3 +240,7 @@ a { color: var(--primary-hover); }
   max-width: calc(100vw - 16px);
 }
 .peek-bar .btn { white-space: nowrap; padding: 10px 14px; }
+
+/* Profile button in the game bar */
+.hud-profile { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; }
+.hud-avatar { border-radius: 50%; display: block; }
