@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PanoGuru Street View test</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; color: #eee; font: 14px/1.4 system-ui, sans-serif; }
+    #pano { width: 100vw; height: 70vh; background: #000; }
+    #log { padding: 10px 14px; white-space: pre-wrap; font-family: Consolas, monospace; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div id="pano"></div>
+  <pre id="log">starting…</pre>
+  <script src="config.js"></script>
+  <script>
+    const log = (...a) => { document.getElementById("log").textContent += "\n" + a.join(" "); console.log(...a); };
+    document.getElementById("log").textContent = "PanoGuru Street View test " + new Date().toISOString();
+    // 1. environment checks
+    try { new Function("return 1")(); log("eval allowed: yes"); } catch (e) { log("eval allowed: NO (CSP blocks eval) ->", e.message); }
+    try {
+      const c = document.createElement("canvas");
+      const gl = c.getContext("webgl2") || c.getContext("webgl");
+      log("WebGL:", gl ? "yes (" + (gl.getParameter(gl.VERSION)) + ")" : "NO");
+    } catch (e) { log("WebGL check failed:", e.message); }
+    const csp = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    log("CSP meta tag in page:", csp ? csp.content : "none");
+    // 2. load Google Maps with the key from config.js
+    const key = (window.PANOGURU_CONFIG || {}).googleMapsApiKey || "";
+    log("key prefix:", key.slice(0, 10) || "(none)");
+    window.gm_authFailure = () => log("gm_authFailure: Google rejected the key (see console for the exact *MapError)");
+    const s = document.createElement("script");
+    s.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&v=weekly&callback=__init&libraries=streetView";
+    s.async = true;
+    s.onerror = () => log("maps script failed to load");
+    document.head.appendChild(s);
+    window.__init = async function () {
+      log("maps loaded, version", google.maps.version);
+      const svc = new google.maps.StreetViewService();
+      svc.getPanorama({ location: { lat: 42.8782, lng: -8.5448 }, radius: 2000, preference: "nearest", source: "outdoor" }, (data, status) => {
+        log("getPanorama status:", status, data && data.location ? "pano " + data.location.pano + " at " + data.location.latLng.lat().toFixed(4) + "," + data.location.latLng.lng().toFixed(4) : "");
+        if (status !== "OK") return;
+        const el = document.getElementById("pano");
+        const pano = new google.maps.StreetViewPanorama(el, { pano: data.location.pano, pov: { heading: 0, pitch: 0 }, zoom: 1, addressControl: false, showRoadLabels: false });
+        pano.addListener("status_changed", () => log("panorama status:", pano.getStatus()));
+        setTimeout(() => {
+          const r = el.getBoundingClientRect();
+          log("container size:", Math.round(r.width) + "x" + Math.round(r.height), "| inline style:", el.getAttribute("style") || "(none)", "| children:", el.children.length);
+          const canvas = el.querySelector("canvas");
+          log("canvas present:", !!canvas, canvas ? canvas.width + "x" + canvas.height : "");
+        }, 4000);
+      });
+    };
+  </script>
+</body>
+</html>

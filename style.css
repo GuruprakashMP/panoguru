@@ -82,7 +82,8 @@ a { color: var(--primary-hover); }
 .attribution { margin: 18px 0 0; line-height: 1.5; }
 
 /* Panorama */
-#pano { position: fixed; inset: 0; z-index: 1; background: #000 !important; }
+#pano-wrap { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; background: #000; }
+#pano { position: relative; width: 100%; height: 100%; }
 
 /* HUD */
 .hud { display: flex; gap: 8px; align-items: center; width: 100%; padding-top: var(--safe-t); }

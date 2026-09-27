@@ -9,11 +9,11 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
-  <div id="pano" class="hidden" aria-label="Street-level panorama"></div>
+  <div id="pano-wrap" class="hidden" aria-label="Street-level panorama"><div id="pano"></div></div>
 
   <!-- Guess / result map (single instance, reused everywhere) -->
   <div id="map-wrap" class="hidden">
@@ -109,7 +109,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js"></script>
-  <script type="module" src="app.js"></script>
+  <script src="config.js?v=4"></script>
+  <script type="module" src="app.js?v=4"></script>
 </body>
 </html>
