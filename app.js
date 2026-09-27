@@ -88,23 +88,59 @@ async function ensureProvider() {
 }
 
 // ---------- locations ----------
-async function findLocation() {
+// Well-covered fallback spots (city centres) used only if random sampling keeps failing.
+const SAFE_SPOTS = [
+  [40.758, -73.9855], [51.508, -0.128], [48.8698, 2.3078], [40.4203, -3.7058], [42.8782, -8.5448], [41.9028, 12.4964],
+  [52.5163, 13.3777], [35.6595, 139.7005], [-33.8688, 151.2093], [-23.5505, -46.6333], [19.4326, -99.1332], [43.6532, -79.3832],
+  [-26.2041, 28.0473], [13.7563, 100.5018], [1.2903, 103.852], [37.5665, 126.978], [25.033, 121.5654], [13.0827, 80.2707],
+  [12.9716, 77.5946], [41.0082, 28.9784], [55.7558, 37.6173], [-34.6037, -58.3816], [-33.4489, -70.6693], [-12.0464, -77.0428],
+  [4.711, -74.0721], [-6.2088, 106.8456], [3.139, 101.6869], [14.5995, 120.9842], [-36.8485, 174.7633], [64.1466, -21.9426],
+  [38.7223, -9.1393], [37.9838, 23.7275], [52.2297, 21.0122], [59.3293, 18.0686], [25.2048, 55.2708], [-1.2921, 36.8219],
+  [5.6037, -0.187], [32.0853, 34.7818], [47.8864, 106.9057], [61.2181, -149.9003],
+];
+
+function buildLocation(found, country) {
+  const actual = countryAt(state.countries, found.lat, found.lng) || country;
+  return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: actual?.n || "", heading: Math.floor(Math.random() * 360) };
+}
+
+async function findLocation(onProgress) {
   const countries = state.countries;
-  for (let c = 0; c < CFG.maxCountriesPerRound; c++) {
-    const country = weightedPick(countries, "w");
-    for (let t = 0; t < CFG.triesPerCountry; t++) {
+  const parallel = CFG.parallelSearches || 3;
+  const deadline = Date.now() + (CFG.searchTimeoutMs || 25000);
+  let attempts = 0;
+  const statuses = {};
+  while (Date.now() < deadline && attempts < (CFG.maxAttempts || 45)) {
+    const batch = [];
+    for (let i = 0; i < parallel; i++) {
+      const country = weightedPick(countries, "w");
       const pt = randomPointInCountry(country);
-      const found = await state.provider.findPanorama(pt, country.km);
-      if (found) {
-        const actual = countryAt(countries, found.lat, found.lng) || country;
-        return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: actual.n, heading: Math.floor(Math.random() * 360) };
-      }
+      const strict = attempts % 2 === 0; // alternate: official-only search, then any outdoor imagery
+      attempts++;
+      batch.push(state.provider.findPanorama(pt, country.km, { strict }).then((r) => ({ r, country })));
     }
+    const results = await Promise.all(batch);
+    for (const { r, country } of results) {
+      if (r?.status === "OK") return buildLocation(r, country);
+      const s = r?.status || "NONE";
+      statuses[s] = (statuses[s] || 0) + 1;
+    }
+    console.info(`[panoguru] search: ${attempts} tries, statuses ${JSON.stringify(statuses)}`);
+    onProgress?.(attempts, statuses);
   }
-  throw new Error("No Street View found after many tries");
+  // Fallback so the game never hangs: a random well-covered city.
+  const [lat, lng] = SAFE_SPOTS[Math.floor(Math.random() * SAFE_SPOTS.length)];
+  const r = await state.provider.findPanorama({ lat, lng }, 3, { strict: false });
+  if (r?.status === "OK") return buildLocation(r, null);
+  throw new Error(`No Street View found (${attempts} tries, statuses ${JSON.stringify(statuses)}, fallback ${r?.status})`);
+}
+function searchProgress(attempts, statuses) {
+  if (ui.loading.classList.contains("hidden")) return;
+  const detail = Object.entries(statuses).map(([k, v]) => `${k} ×${v}`).join(", ");
+  ui.loadingText.textContent = `Finding a place… (${attempts} tries${detail ? ": " + detail : ""})`;
 }
 function prefetchNext() {
-  state.next = findLocation().catch((err) => { console.warn(err); return null; });
+  state.next = findLocation(searchProgress).catch((err) => { console.warn(err); state.lastError = String(err?.message || err); return null; });
 }
 
 // ---------- game flow ----------
@@ -131,11 +167,11 @@ async function nextRound() {
   setLoading(true, "Finding a place…");
   let loc = await state.next;
   if (!loc) {
-    try { loc = await findLocation(); } catch (err) { console.error(err); }
+    try { loc = await findLocation(searchProgress); } catch (err) { console.error(err); state.lastError = String(err?.message || err); }
   }
   if (!loc) {
     setLoading(false);
-    toast("Could not find a Street View location. Please try again.");
+    toast(`Could not find a Street View location. ${state.lastError || ""}`.trim(), "error", 12000);
     showScreen("menu");
     setMapMode("hidden");
     return;

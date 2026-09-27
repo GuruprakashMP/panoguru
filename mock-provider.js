@@ -21,11 +21,11 @@ export function createMockProvider({ countries = [] } = {}) {
 
   function findPanorama(point, radiusKm) {
     return new Promise((resolve) => setTimeout(() => {
-      if (Math.random() < 0.12) return resolve(null); // simulate "no coverage here"
+      if (Math.random() < 0.12) return resolve({ status: "ZERO_RESULTS" }); // simulate "no coverage here"
       const jitter = () => (Math.random() - 0.5) * Math.min(radiusKm, 20) / 111;
       const lat = Math.max(-85, Math.min(85, point.lat + jitter()));
       const lng = point.lng + jitter();
-      resolve({ panoId: `mock:${lat.toFixed(4)},${lng.toFixed(4)}`, lat, lng });
+      resolve({ status: "OK", panoId: `mock:${lat.toFixed(4)},${lng.toFixed(4)}`, lat, lng });
     }, 60));
   }
 

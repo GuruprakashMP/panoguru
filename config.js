@@ -13,9 +13,11 @@ window.PANOGURU_CONFIG = {
   maxScorePerRound: 5000,
   scoreScaleKm: 1492.7, // GeoGuessr-style: score = 5000 * exp(-distance / scale)
 
-  // Street View search: attempts per round before giving up on a country
-  triesPerCountry: 6,
-  maxCountriesPerRound: 8,
+  // Street View search: parallel lookups per batch, total attempts and time
+  // budget before falling back to a well-covered city
+  parallelSearches: 3,
+  maxAttempts: 45,
+  searchTimeoutMs: 25000,
 
   // Links
   repoUrl: "https://github.com/GuruprakashMP/panoguru",

@@ -49,29 +49,39 @@ export function createGoogleProvider(apiKey, { onAuthError } = {}) {
     svService = new libs.StreetViewService();
   }
 
-  /** Nearest official outdoor panorama within radiusKm of the point, or null. */
-  function findPanorama(point, radiusKm) {
+  /**
+   * Nearest outdoor panorama within radiusKm of the point.
+   * Resolves to { status: "OK", panoId, lat, lng } or { status: "<reason>" }.
+   * strict=true limits to official Google imagery (when the API supports it).
+   */
+  function findPanorama(point, radiusKm, { strict = true } = {}) {
     const { StreetViewPreference, StreetViewSource } = libs;
     const request = {
       location: { lat: point.lat, lng: point.lng },
       radius: Math.round(radiusKm * 1000),
-      preference: StreetViewPreference.NEAREST,
+      preference: StreetViewPreference?.NEAREST || "nearest",
     };
-    if (StreetViewSource?.GOOGLE) request.sources = [StreetViewSource.GOOGLE, StreetViewSource.OUTDOOR];
-    else request.source = StreetViewSource.OUTDOOR;
+    const OUTDOOR = StreetViewSource?.OUTDOOR || "outdoor";
+    if (strict && StreetViewSource?.GOOGLE) request.sources = [StreetViewSource.GOOGLE, OUTDOOR];
+    else request.source = OUTDOOR;
     return new Promise((resolve) => {
       let done = false;
-      const finish = (v) => { if (!done) { done = true; resolve(v); } };
-      setTimeout(() => finish(null), 8000);
+      const finish = (v) => { if (!done) { done = true; clearTimeout(timer); resolve(v); } };
+      const timer = setTimeout(() => finish({ status: "TIMEOUT" }), 7000);
+      const ok = (data) => {
+        const ll = data?.location?.latLng;
+        if (!ll || !data.location.pano) return finish({ status: "NO_DATA" });
+        finish({ status: "OK", panoId: data.location.pano, lat: ll.lat(), lng: ll.lng() });
+      };
+      let p;
       try {
-        svService.getPanorama(request, (data, status) => {
-          if (status !== "OK" || !data?.location?.latLng) return finish(null);
-          const ll = data.location.latLng;
-          finish({ panoId: data.location.pano, lat: ll.lat(), lng: ll.lng() });
-        });
+        p = svService.getPanorama(request, (data, status) => (status === "OK" ? ok(data) : finish({ status: String(status || "UNKNOWN") })));
       } catch (err) {
-        console.warn("getPanorama failed", err);
-        finish(null);
+        console.warn("getPanorama threw", err);
+        return finish({ status: "ERROR " + (err?.message || err) });
+      }
+      if (p && typeof p.then === "function") {
+        p.then((res) => ok(res?.data), (err) => finish({ status: String(err?.code || err?.message || err || "REJECTED") }));
       }
     });
   }
