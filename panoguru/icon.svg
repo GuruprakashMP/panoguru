@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="globe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <circle cx="64" cy="70" r="38" fill="url(#globe)"/>
+  <path d="M40 52c8-6 18-4 24 2s16 8 24 2M32 74c10 6 22 6 32 0s22-6 32 0M64 32v76" fill="none" stroke="#0c4a6e" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <ellipse cx="64" cy="70" rx="18" ry="38" fill="none" stroke="#0c4a6e" stroke-width="3" opacity="0.7"/>
+  <path d="M42 62c6-8 14-8 22-2 6 5 12 6 20 0" fill="#34d399" opacity="0.9"/>
+  <path d="M74 84c8-5 12-2 16 4-6 4-12 2-16-4z" fill="#34d399" opacity="0.9"/>
+  <path d="M64 12c-11 0-20 9-20 20 0 15 20 36 20 36s20-21 20-36c0-11-9-20-20-20z" fill="#fbbf24" stroke="#78350f" stroke-width="2"/>
+  <circle cx="64" cy="32" r="8" fill="#0f172a"/>
+</svg>
