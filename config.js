@@ -6,7 +6,7 @@ window.PANOGURU_CONFIG = {
   // Google Maps Platform API key (Maps JavaScript API enabled, restricted to
   // your website URL). Leave empty to be asked for a key in the browser
   // (stored only on that device) - handy for local testing.
-  googleMapsApiKey: "",
+  googleMapsApiKey: "AIzaSyAw930OuURXC9aHmVN3-WNrZqvNyKjm9Qk",
 
   // Game rules
   rounds: 5,
