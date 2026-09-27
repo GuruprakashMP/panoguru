@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -20,6 +20,7 @@
     <div id="map"></div>
     <button id="map-tap" class="map-tap" type="button" aria-label="Open the map"></button>
     <div class="map-controls">
+      <div id="map-hint" class="map-hint"><span class="pin-mini pin-guess">?</span> Tap the map where you think you are</div>
       <button id="map-close" class="btn btn-ghost btn-sm" type="button" aria-label="Shrink map">&#x2715;</button>
       <button id="btn-guess" class="btn btn-primary" type="button" disabled>Place your pin</button>
     </div>
@@ -80,6 +81,7 @@
       </div>
       <div class="result-points"><b id="res-points">0</b> points</div>
       <div class="result-meta muted small"><span id="res-country"></span></div>
+      <div class="legend"><span class="pin-mini pin-guess">?</span> your guess &nbsp;&nbsp; <span class="pin-mini pin-answer">&#x2713;</span> true location</div>
       <div class="row">
         <button id="btn-next" class="btn btn-primary btn-lg" type="button">Next round</button>
       </div>
@@ -93,6 +95,7 @@
         <div class="result-sub">Total score</div>
         <div class="result-big"><span id="final-score">0</span> <span class="small muted">/ <span id="final-max">25000</span></span></div>
       </div>
+      <div class="legend"><span class="pin-mini pin-guess">?</span> your guess &nbsp;&nbsp; <span class="pin-mini pin-answer">&#x2713;</span> true location</div>
       <ol id="final-rounds" class="round-list"></ol>
       <div class="row">
         <button id="btn-again" class="btn btn-primary btn-lg" type="button">Play again</button>
@@ -109,7 +112,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=4"></script>
-  <script type="module" src="app.js?v=4"></script>
+  <script src="config.js?v=5"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

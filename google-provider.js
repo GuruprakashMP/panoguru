@@ -21,10 +21,21 @@ const GOOGLE_MAPS_LOADER = (g) => {
   d[l] ? console.warn(p + " only loads once. Ignoring:", g) : (d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)));
 };
 
-const ANSWER_ICON = {
-  path: "M 0,0 m -8,0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0",
-  fillColor: "#10b981", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 2.5, scale: 1,
-};
+// Marker icons: red pin with "?" (or round number) = player's guess, green pin with a tick = true location.
+function pinDataUrl(fill, stroke, textColor, inner) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 46" width="36" height="46">
+    <path d="M18 1.5C9.2 1.5 2.5 8.2 2.5 17c0 11.5 15.5 27.5 15.5 27.5S33.5 28.5 33.5 17C33.5 8.2 26.8 1.5 18 1.5z" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+    <circle cx="18" cy="17" r="10.5" fill="#fff"/>${inner.replace(/TEXTCOLOR/g, textColor)}</svg>`;
+  return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
+const GUESS_INNER = (label) => `<text x="18" y="22.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${label.length > 1 ? 13 : 16}" font-weight="bold" fill="TEXTCOLOR">${label}</text>`;
+const ANSWER_INNER = `<path d="M12 17.5l4.2 4.2L24.5 13" fill="none" stroke="TEXTCOLOR" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+function guessIcon(label = "?") {
+  return { url: pinDataUrl("#ef4444", "#7f1d1d", "#b91c1c", GUESS_INNER(label)), scaledSize: new google.maps.Size(36, 46), anchor: new google.maps.Point(18, 45) };
+}
+function answerIcon() {
+  return { url: pinDataUrl("#10b981", "#065f46", "#047857", ANSWER_INNER), scaledSize: new google.maps.Size(36, 46), anchor: new google.maps.Point(18, 45) };
+}
 
 export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {}) {
   let libs = null;
@@ -141,6 +152,8 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
       keyboardShortcuts: false,
       mapTypeId: "roadmap",
       backgroundColor: "#0b1220",
+      draggableCursor: "crosshair",
+      draggingCursor: "grabbing",
     });
     map.addListener("click", (e) => mapClickHandler?.({ lat: e.latLng.lat(), lng: e.latLng.lng() }));
   }
@@ -152,7 +165,7 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
       return;
     }
     if (!guessMarker) {
-      guessMarker = new libs.Marker({ map, position: point, draggable: true, title: "Your guess" });
+      guessMarker = new libs.Marker({ map, position: point, draggable: true, title: "Your guess (drag to adjust)", icon: guessIcon("?"), zIndex: 20 });
       guessMarker.addListener("dragend", () => {
         const p = guessMarker.getPosition();
         mapClickHandler?.({ lat: p.lat(), lng: p.lng() }, { fromDrag: true });
@@ -175,11 +188,11 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
     const bounds = new google.maps.LatLngBounds();
     pairs.forEach((pair, i) => {
       const { guess, answer } = pair;
-      const answerMarker = new libs.Marker({ map, position: answer, icon: ANSWER_ICON, title: `Round ${i + 1}`, zIndex: 10 });
+      const answerMarker = new libs.Marker({ map, position: answer, icon: answerIcon(), title: `True location${pairs.length > 1 ? " (round " + (i + 1) + ")" : ""}`, zIndex: 10 });
       overlays.push(answerMarker);
       bounds.extend(answer);
       if (guess) {
-        const gm = new libs.Marker({ map, position: guess, label: pairs.length > 1 ? String(i + 1) : undefined, title: "Your guess" });
+        const gm = new libs.Marker({ map, position: guess, icon: guessIcon(pairs.length > 1 ? String(i + 1) : "?"), title: "Your guess", zIndex: 15 });
         overlays.push(gm);
         bounds.extend(guess);
         const line = new libs.Polyline({
@@ -193,6 +206,11 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
     map.fitBounds(bounds, 60);
   }
 
+  /** Crosshair cursor while guessing, hand cursor on result maps. */
+  function setGuessMode(on) {
+    map?.setOptions({ draggableCursor: on ? "crosshair" : "grab" });
+  }
+
   function resetView() {
     if (!map) return;
     map.setCenter({ lat: 20, lng: 0 });
@@ -204,5 +222,5 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
     if (pano) google.maps.event.trigger(pano, "resize");
   }
 
-  return { name: "google", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, clearOverlays, showResult, resetView, resize };
+  return { name: "google", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize };
 }

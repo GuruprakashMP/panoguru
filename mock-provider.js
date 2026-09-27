@@ -103,20 +103,21 @@ export function createMockProvider({ countries = [] } = {}) {
       p.r[0].forEach(([lng, lat], i) => { const [x, y] = toXY(lat, lng); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
       ctx.closePath(); ctx.fill(); ctx.stroke();
     }
-    const dot = (pt, color, label) => {
+    const dot = (pt, color, text) => {
       const [x, y] = toXY(pt.lat, pt.lng);
-      ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-      if (label) { ctx.fillStyle = "#fff"; ctx.font = "bold 11px system-ui"; ctx.fillText(label, x + 8, y - 8); }
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(text, x, y + 0.5);
+      ctx.textAlign = "start"; ctx.textBaseline = "alphabetic";
     };
     resultPairs.forEach((pair, i) => {
       if (pair.guess) {
         const [x1, y1] = toXY(pair.guess.lat, pair.guess.lng), [x2, y2] = toXY(pair.answer.lat, pair.answer.lng);
         ctx.setLineDash([6, 6]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
-        dot(pair.guess, "#ef4444", resultPairs.length > 1 ? String(i + 1) : "");
+        dot(pair.guess, "#ef4444", resultPairs.length > 1 ? String(i + 1) : "?");
       }
-      dot(pair.answer, "#10b981");
+      dot(pair.answer, "#10b981", "\u2713");
     });
-    if (guess) dot(guess, "#ef4444");
+    if (guess) dot(guess, "#ef4444", "?");
     ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "11px system-ui"; ctx.fillText("Mock map: tap to guess", 8, H - 8);
   }
   function createMap(container, { onClick }) {
@@ -135,10 +136,11 @@ export function createMockProvider({ countries = [] } = {}) {
     drawMap();
   }
   function setGuess(pt) { guess = pt; drawMap(); }
+  function setGuessMode(on) { if (mapEl) mapEl.style.cursor = on ? "crosshair" : "grab"; }
   function clearOverlays() { guess = null; resultPairs = []; drawMap(); }
   function showResult(pairs) { guess = null; resultPairs = pairs; drawMap(); }
   function resetView() { drawMap(); }
   function resize() { drawPano(); drawMap(); }
 
-  return { name: "mock", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, clearOverlays, showResult, resetView, resize };
+  return { name: "mock", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize };
 }

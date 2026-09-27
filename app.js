@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=4";
-import { createGoogleProvider } from "./google-provider.js?v=4";
-import { createMockProvider } from "./mock-provider.js?v=4";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=5";
+import { createGoogleProvider } from "./google-provider.js?v=5";
+import { createMockProvider } from "./mock-provider.js?v=5";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -15,7 +15,7 @@ const params = new URLSearchParams(location.search);
 const $ = (id) => document.getElementById(id);
 
 const ui = {
-  pano: $("pano"), panoWrap: $("pano-wrap"), mapWrap: $("map-wrap"), map: $("map"), mapTap: $("map-tap"), mapClose: $("map-close"), guess: $("btn-guess"),
+  pano: $("pano"), panoWrap: $("pano-wrap"), mapWrap: $("map-wrap"), map: $("map"), mapTap: $("map-tap"), mapClose: $("map-close"), guess: $("btn-guess"), mapHint: $("map-hint"),
   screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final") },
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
@@ -201,6 +201,8 @@ async function nextRound() {
   state.provider.resetView();
   ui.guess.disabled = true;
   ui.guess.textContent = "Place your pin";
+  ui.mapHint.classList.remove("hidden");
+  state.provider.setGuessMode?.(true);
   ui.hudRound.textContent = state.round;
   setMapMode("mini");
   showScreen("game");
@@ -213,6 +215,7 @@ function onMapClick(point) {
     state.provider.setGuess(point);
     ui.guess.disabled = false;
     ui.guess.textContent = "Guess";
+    ui.mapHint.classList.add("hidden");
   }
 }
 
@@ -229,6 +232,7 @@ function submitGuess() {
   ui.resCountry.textContent = state.current.country ? `It was in ${state.current.country}` : "";
   ui.next.textContent = state.round >= CFG.rounds ? "See results" : "Next round";
   ui.panoWrap.classList.add("invisible");
+  state.provider.setGuessMode?.(false);
   setMapMode("result");
   state.provider.showResult([{ guess: state.guess, answer }]);
   showScreen("result");

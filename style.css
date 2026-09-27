@@ -173,3 +173,20 @@ a { color: var(--primary-hover); }
   #map-wrap.mini { width: 320px; height: 220px; }
   #map-wrap.expanded { width: min(900px, 70vw); height: min(640px, 70vh); right: 16px; bottom: 16px; }
 }
+
+/* Pin legend + map hint */
+.pin-mini {
+  display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%;
+  font-size: 12px; font-weight: 800; color: #fff; border: 2px solid rgba(255, 255, 255, 0.9); vertical-align: middle; line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.pin-guess { background: #ef4444; }
+.pin-answer { background: #10b981; }
+.legend { margin-top: 8px; font-size: 0.85rem; color: var(--muted); }
+.legend .pin-mini { margin: 0 2px; }
+.map-hint {
+  position: absolute; top: 10px; left: 10px; right: 62px; z-index: 5; pointer-events: none;
+  background: rgba(15, 23, 42, 0.85); color: #fff; padding: 7px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;
+  box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
+}
+.map-hint .pin-mini { flex: 0 0 20px; }
