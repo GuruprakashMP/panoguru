@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=14";
-import { createGoogleProvider } from "./google-provider.js?v=14";
-import { createMockProvider } from "./mock-provider.js?v=14";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=14";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=15";
+import { createGoogleProvider } from "./google-provider.js?v=15";
+import { createMockProvider } from "./mock-provider.js?v=15";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=15";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -28,7 +28,7 @@ const ui = {
   profileBtn: $("btn-profile"), signIn: $("btn-signin"), signOut: $("btn-signout"), userChip: $("user-chip"), userPhoto: $("user-photo"), userName: $("user-name"),
   profileBack: $("btn-profile-back"), profileSignIn: $("btn-profile-signin"), profilePhoto: $("profile-photo"), profileName: $("profile-name"), profileSub: $("profile-sub"),
   st: { games: $("st-games"), best: $("st-best"), avg: $("st-avg"), avgkm: $("st-avgkm"), level: $("st-level"), countries: $("st-countries"), empty: $("st-empty"),
-        strong: $("st-strong"), weak: $("st-weak"), continents: $("st-continents"), recent: $("st-recent") },
+        strong: $("st-strong"), weak: $("st-weak"), continents: $("st-continents") },
 };
 
 const state = {
@@ -413,7 +413,6 @@ function renderProfile() {
   ui.st.strong.innerHTML = sum.strongest.map((c) => li(c.name, `${c.rounds} rounds`, formatPoints(c.avg), c.avg / 50)).join("");
   ui.st.weak.innerHTML = sum.weakest.map((c) => li(c.name, `${c.rounds} rounds · ${formatDistance(c.avgKm)} off`, formatPoints(c.avg), c.avg / 50)).join("");
   ui.st.continents.innerHTML = sum.continents.map((k) => li(k.name, `${k.rounds} rounds · ${formatDistance(k.avgKm)} off`, formatPoints(k.avg) + " avg", k.avg / 50)).join("");
-  ui.st.recent.innerHTML = (st.recent || []).map((g) => li(new Date(g.at).toLocaleDateString(), (g.places || []).slice(0, 5).join(", "), formatPoints(g.total))).join("");
 }
 
 function showProfile() {

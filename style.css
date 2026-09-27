@@ -58,18 +58,18 @@ a { color: var(--primary-hover); }
 /* Screens */
 .screen {
   position: fixed; inset: 0; z-index: 40;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: flex-start; justify-content: center;
   padding: 16px; padding-top: calc(16px + var(--safe-t)); padding-bottom: calc(16px + var(--safe-b));
   background: radial-gradient(1200px 800px at 20% -10%, #1e3a5f 0%, var(--bg) 55%, #0a1020 100%);
   overflow-y: auto;
 }
-.screen-transparent { background: none; pointer-events: none; z-index: 15; align-items: flex-start; padding: 10px; }
+.screen-transparent { background: none; pointer-events: none; z-index: 15; align-items: flex-start; padding: 10px; overflow: hidden; }
 .screen-transparent > * { pointer-events: auto; }
 .screen-bottom { background: none; pointer-events: none; z-index: 25; align-items: flex-end; padding: 0; }
 .screen-bottom > * { pointer-events: auto; }
 
 .card {
-  width: 100%; max-width: 440px; background: var(--card); border: 1px solid var(--border);
+  margin: auto; width: 100%; max-width: 440px; background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 22px; text-align: center;
 }
 .menu-card .logo { display: block; margin: 0 auto 8px; }
