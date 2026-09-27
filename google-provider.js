@@ -45,6 +45,7 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
   let guessMarker = null;
   let overlays = [];
   let startPanoId = null;
+  let lastGoodPanoId = null; // last panorama that loaded fine (for automatic recovery)
   let mapClickHandler = null;
 
   async function load() {
@@ -121,16 +122,43 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
       });
       pano.addListener("status_changed", () => {
         const s = pano.getStatus();
-        console.info("[panoguru] panorama status:", s, pano.getPano());
-        if (s !== "OK") onPanoStatus?.(s, pano.getPano());
+        const id = pano.getPano();
+        console.info("[panoguru] panorama status:", s, id);
+        if (s === "OK") { lastGoodPanoId = id; return; }
+        if (lastGoodPanoId && lastGoodPanoId !== id) {
+          // Moving along the road landed on a panorama that will not load: step back to the last good one.
+          console.warn("[panoguru] panorama failed while moving, going back to", lastGoodPanoId);
+          pano.setPano(lastGoodPanoId);
+          onPanoStatus?.(s, id, { recovered: true });
+        } else {
+          onPanoStatus?.(s, id, { recovered: false });
+        }
       });
       pano.addListener("pano_changed", () => console.info("[panoguru] pano_changed:", pano.getPano()));
       pano.addListener("pov_changed", () => onPov?.(pano.getPov().heading));
+      // If the graphics context is lost (GPU hiccup, tab throttling) the view turns black; redraw when it comes back.
+      container.addEventListener("webglcontextlost", (e) => { e.preventDefault(); console.warn("[panoguru] WebGL context lost"); }, true);
+      container.addEventListener("webglcontextrestored", () => { console.info("[panoguru] WebGL context restored"); refreshView(); }, true);
       return;
     }
     pano.setPano(panoId);
     pano.setPov({ heading, pitch: 0 });
     pano.setZoom(1);
+  }
+
+  /** Force the panorama to redraw the current spot (fixes the occasional black view after moving). */
+  function refreshView() {
+    if (!pano) return;
+    const id = pano.getPano() || lastGoodPanoId || startPanoId;
+    const pov = pano.getPov();
+    const zoom = pano.getZoom();
+    pano.setVisible(false);
+    setTimeout(() => {
+      pano.setVisible(true);
+      if (id) pano.setPano(id);
+      pano.setPov(pov);
+      pano.setZoom(zoom);
+    }, 60);
   }
 
   function returnToStart() {
@@ -253,5 +281,5 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
     if (pano) google.maps.event.trigger(pano, "resize");
   }
 
-  return { name: "google", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize, placeName };
+  return { name: "google", load, findPanorama, showPanorama, returnToStart, refreshView, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize, placeName };
 }

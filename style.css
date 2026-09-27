@@ -92,7 +92,7 @@ a { color: var(--primary-hover); }
   border-radius: 999px; padding: 7px 12px; font-size: 0.9rem; font-variant-numeric: tabular-nums;
 }
 .chip-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
-#btn-return { margin-left: auto; }
+#btn-refresh { margin-left: auto; }
 .compass { display: flex; align-items: center; margin-left: 4px; }
 .compass svg { display: block; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); }
 #compass-rose { transform-origin: 50px 50px; transition: transform 0.12s linear; }

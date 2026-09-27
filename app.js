@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=9";
-import { createGoogleProvider } from "./google-provider.js?v=9";
-import { createMockProvider } from "./mock-provider.js?v=9";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=10";
+import { createGoogleProvider } from "./google-provider.js?v=10";
+import { createMockProvider } from "./mock-provider.js?v=10";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -19,7 +19,7 @@ const ui = {
   screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final") },
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
-  hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"),
+  hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), refresh: $("btn-refresh"),
   resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), next: $("btn-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
   loading: $("loading"), loadingText: $("loading-text"), toast: $("toast"),
@@ -75,8 +75,9 @@ async function ensureProvider() {
   if (!key) { showScreen("setup"); return false; }
   state.provider = createGoogleProvider(key, {
     onPov: setCompass,
-    onPanoStatus: (status, panoId) => {
-      // The chosen panorama could not be displayed: report and move to another place (max 3 times per round).
+    onPanoStatus: (status, panoId, { recovered } = {}) => {
+      if (recovered) { toast("That spot did not load, went back one step.", "info", 3000); return; }
+      // The round's first panorama could not be displayed: report and move to another place (max 3 times per round).
       state.panoRetries = (state.panoRetries || 0) + 1;
       toast(`Street View could not load this place (${status}). ${state.panoRetries <= 3 ? "Trying another…" : ""}`, "info", 5000);
       if (state.panoRetries <= 3 && !ui.screens.game.classList.contains("hidden")) {
@@ -307,6 +308,7 @@ function bind() {
   ui.guess.addEventListener("click", submitGuess);
   ui.next.addEventListener("click", () => (state.round >= CFG.rounds ? showFinal() : nextRound()));
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
+  ui.refresh.addEventListener("click", () => state.provider?.refreshView?.());
   ui.share.addEventListener("click", share);
   // The small map is a thumbnail: click/tap it to open the big map, place the pin there, Guess. The corner button shrinks it again.
   ui.mapTap.addEventListener("click", () => setMapMode("expanded"));
@@ -325,6 +327,7 @@ function bind() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !ui.screens.game.classList.contains("hidden") && state.guess) submitGuess();
     if (e.key === "Escape" && ui.mapWrap.classList.contains("expanded")) setMapMode("mini");
+    if ((e.key === "r" || e.key === "R") && !ui.screens.game.classList.contains("hidden") && !e.ctrlKey && !e.metaKey) state.provider?.refreshView?.();
   });
   window.addEventListener("resize", () => state.provider?.resize());
   window.addEventListener("beforeunload", () => {}); // no-op placeholder for future autosave

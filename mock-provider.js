@@ -79,6 +79,7 @@ export function createMockProvider({ countries = [], onPov } = {}) {
     }
     requestAnimationFrame(drawPano);
   }
+  function refreshView() { drawPano(); }
   function returnToStart() { if (panoState.startId) { panoState.id = panoState.startId; drawPano(); } }
 
   // ---- map ----
@@ -142,5 +143,5 @@ export function createMockProvider({ countries = [], onPov } = {}) {
   function resetView() { drawMap(); }
   function resize() { drawPano(); drawMap(); }
 
-  return { name: "mock", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize };
+  return { name: "mock", load, findPanorama, showPanorama, returnToStart, refreshView, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize };
 }
