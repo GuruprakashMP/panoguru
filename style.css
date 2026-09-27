@@ -112,6 +112,16 @@ a { color: var(--primary-hover); }
   width: min(46vw, 280px); height: min(30vh, 220px); border-radius: 12px; opacity: 0.92;
 }
 #map-wrap.mini .map-tap { display: block; }
+/* Desktop (mouse): the small map is used directly, controls are visible, no tap overlay */
+@media (pointer: fine) {
+  #map-wrap.mini .map-tap { display: none; }
+  #map-wrap.mini .map-controls { display: block; }
+  #map-wrap.mini .map-hint { font-size: 0.72rem; padding: 5px 8px; top: 6px; left: 6px; right: 48px; gap: 6px; }
+  #map-wrap.mini .map-hint .pin-mini { width: 16px; height: 16px; font-size: 10px; flex-basis: 16px; }
+  #map-wrap.mini #btn-guess { bottom: 8px; padding: 8px 14px; min-height: 36px; font-size: 0.9rem; }
+  #map-wrap.mini #map-close { top: 6px; right: 6px; }
+  #map-wrap.mini { opacity: 1; }
+}
 #map-wrap.expanded {
   right: 8px; bottom: calc(8px + var(--safe-b));
   width: calc(100vw - 16px); height: calc(100vh - 74px - var(--safe-t) - var(--safe-b));
@@ -170,7 +180,7 @@ a { color: var(--primary-hover); }
 
 @media (min-width: 900px) {
   .title { font-size: 2.6rem; }
-  #map-wrap.mini { width: 320px; height: 220px; }
+  #map-wrap.mini { width: 400px; height: 290px; }
   #map-wrap.expanded { width: min(900px, 70vw); height: min(640px, 70vh); right: 16px; bottom: 16px; }
 }
 

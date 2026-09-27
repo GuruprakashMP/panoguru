@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=5";
-import { createGoogleProvider } from "./google-provider.js?v=5";
-import { createMockProvider } from "./mock-provider.js?v=5";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=6";
+import { createGoogleProvider } from "./google-provider.js?v=6";
+import { createMockProvider } from "./mock-provider.js?v=6";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -48,6 +48,9 @@ function toast(msg, kind = "error", ms = 5000) {
 function setMapMode(mode) {
   ui.mapWrap.classList.remove("hidden", "mini", "expanded", "result", "final");
   ui.mapWrap.classList.add(mode);
+  ui.mapClose.textContent = mode === "expanded" ? "\u2715" : "\u26F6";
+  ui.mapClose.setAttribute("aria-label", mode === "expanded" ? "Shrink map" : "Enlarge map");
+  ui.mapClose.title = mode === "expanded" ? "Shrink map (Esc)" : "Enlarge map";
   setTimeout(() => state.provider?.resize(), 220);
 }
 function storage(get, key, value) {
@@ -210,7 +213,8 @@ async function nextRound() {
 }
 
 function onMapClick(point) {
-  if (!ui.screens.game.classList.contains("hidden") && !ui.mapWrap.classList.contains("mini")) {
+  const desktop = matchMedia("(pointer: fine)").matches;
+  if (!ui.screens.game.classList.contains("hidden") && (desktop || !ui.mapWrap.classList.contains("mini"))) {
     state.guess = point;
     state.provider.setGuess(point);
     ui.guess.disabled = false;
@@ -282,10 +286,9 @@ function bind() {
   ui.next.addEventListener("click", () => (state.round >= CFG.rounds ? showFinal() : nextRound()));
   ui.ret.addEventListener("click", () => state.provider?.returnToStart());
   ui.share.addEventListener("click", share);
+  // Phones: tap the small map to open it. Desktop: the small map is directly usable; the corner button toggles the size.
   ui.mapTap.addEventListener("click", () => setMapMode("expanded"));
-  ui.mapClose.addEventListener("click", () => setMapMode("mini"));
-  ui.mapWrap.addEventListener("mouseenter", () => { if (matchMedia("(pointer: fine)").matches && ui.mapWrap.classList.contains("mini")) setMapMode("expanded"); });
-  ui.mapWrap.addEventListener("mouseleave", () => { if (matchMedia("(pointer: fine)").matches && ui.mapWrap.classList.contains("expanded")) setMapMode("mini"); });
+  ui.mapClose.addEventListener("click", () => setMapMode(ui.mapWrap.classList.contains("expanded") ? "mini" : "expanded"));
   ui.saveKey.addEventListener("click", () => {
     const key = ui.apiKey.value.trim();
     if (!/^AIza[0-9A-Za-z_-]{30,}$/.test(key)) { toast("That does not look like a Google Maps API key (starts with AIza)."); return; }
