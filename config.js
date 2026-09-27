@@ -12,6 +12,12 @@ window.PANOGURU_CONFIG = {
   // or "thumbnail" (a small live map preview in the corner)
   miniMap: "button",
 
+  // Place names on the result screen: Street View's own description (street, town,
+  // region) is always used and is free. Set useGeocoder: true for cleaner
+  // "Town, Region, Country" names via the Geocoding API (needs that API enabled in
+  // Google Cloud and allowed on the key; 10,000 free requests per month).
+  useGeocoder: false,
+
   // Game rules
   rounds: 5,
   maxScorePerRound: 5000,

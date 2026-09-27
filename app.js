@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=8";
-import { createGoogleProvider } from "./google-provider.js?v=8";
-import { createMockProvider } from "./mock-provider.js?v=8";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=9";
+import { createGoogleProvider } from "./google-provider.js?v=9";
+import { createMockProvider } from "./mock-provider.js?v=9";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -122,7 +122,11 @@ const SAFE_SPOTS = [
 
 function buildLocation(found, country) {
   const actual = countryAt(state.countries, found.lat, found.lng) || country;
-  return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: actual?.n || "", heading: Math.floor(Math.random() * 360) };
+  const countryName = actual?.n || "";
+  // Street View's own description (street / town / region), plus the country if it is not already mentioned.
+  const desc = (found.description || "").trim();
+  const place = desc && countryName && !desc.toLowerCase().includes(countryName.toLowerCase()) ? `${desc}, ${countryName}` : (desc || countryName);
+  return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: countryName, place, heading: Math.floor(Math.random() * 360) };
 }
 
 async function findLocation(onProgress) {
@@ -238,11 +242,18 @@ function submitGuess() {
   const km = haversineKm(state.guess, answer);
   const points = scoreForDistance(km, CFG);
   state.total += points;
-  state.rounds.push({ guess: state.guess, answer, km, points, country: state.current.country });
+  const roundInfo = { guess: state.guess, answer, km, points, country: state.current.country, place: state.current.place || state.current.country };
+  state.rounds.push(roundInfo);
   ui.hudScore.textContent = formatPoints(state.total);
   ui.resDistance.textContent = formatDistance(km);
   ui.resPoints.textContent = formatPoints(points);
-  ui.resCountry.textContent = state.current.country ? `It was in ${state.current.country}` : "";
+  ui.resCountry.textContent = roundInfo.place ? `It was in ${roundInfo.place}` : "";
+  if (CFG.useGeocoder && state.provider.placeName) {
+    // Upgrade to "Town, Region, Country" when the Geocoding API is available (async, non-blocking).
+    state.provider.placeName(answer).then((name) => {
+      if (name && state.rounds[state.rounds.length - 1] === roundInfo) { roundInfo.place = name; ui.resCountry.textContent = `It was in ${name}`; }
+    });
+  }
   ui.next.textContent = state.round >= CFG.rounds ? "See results" : "Next round";
   ui.panoWrap.classList.add("invisible");
   ui.openMap.classList.add("hidden");
@@ -256,7 +267,7 @@ function showFinal() {
   ui.finalScore.textContent = formatPoints(state.total);
   ui.finalMax.textContent = formatPoints(CFG.rounds * CFG.maxScorePerRound);
   ui.finalRounds.innerHTML = state.rounds.map((r, i) =>
-    `<li><span>Round ${i + 1} · ${r.country ? escapeHtml(r.country) : "?"}</span><span class="muted">${formatDistance(r.km)}</span><span>${formatPoints(r.points)}</span></li>`
+    `<li><span>Round ${i + 1} · ${escapeHtml(r.place || r.country || "?")}</span><span class="muted">${formatDistance(r.km)}</span><span>${formatPoints(r.points)}</span></li>`
   ).join("");
   const best = Number(storage(true, LS_BEST) || 0);
   if (state.total > best) { storage(false, LS_BEST, String(state.total)); }

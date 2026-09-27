@@ -25,7 +25,7 @@ export function createMockProvider({ countries = [], onPov } = {}) {
       const jitter = () => (Math.random() - 0.5) * Math.min(radiusKm, 20) / 111;
       const lat = Math.max(-85, Math.min(85, point.lat + jitter()));
       const lng = point.lng + jitter();
-      resolve({ status: "OK", panoId: `mock:${lat.toFixed(4)},${lng.toFixed(4)}`, lat, lng });
+      resolve({ status: "OK", panoId: `mock:${lat.toFixed(4)},${lng.toFixed(4)}`, lat, lng, description: "Mock Street, Mock Town", shortDescription: "Mock Street" });
     }, 60));
   }
 

@@ -82,7 +82,8 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
       const ok = (data) => {
         const ll = data?.location?.latLng;
         if (!ll || !data.location.pano) return finish({ status: "NO_DATA" });
-        finish({ status: "OK", panoId: data.location.pano, lat: ll.lat(), lng: ll.lng() });
+        finish({ status: "OK", panoId: data.location.pano, lat: ll.lat(), lng: ll.lng(),
+          description: data.location.description || "", shortDescription: data.location.shortDescription || "" });
       };
       let p;
       try {
@@ -207,6 +208,35 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
     map.fitBounds(bounds, 60);
   }
 
+  /**
+   * Optional: "Town, Region, Country" via the Geocoding API (10,000 free requests/month,
+   * the API must be enabled in the Google Cloud project). Resolves to null on any problem.
+   */
+  let geocoder = null;
+  async function placeName(point) {
+    try {
+      if (!geocoder) {
+        const { Geocoder } = await google.maps.importLibrary("geocoding");
+        geocoder = new Geocoder();
+      }
+      const { results } = await geocoder.geocode({ location: point });
+      if (!results?.length) return null;
+      const get = (type) => {
+        for (const r of results) {
+          const c = r.address_components.find((x) => x.types.includes(type));
+          if (c) return c.long_name;
+        }
+        return null;
+      };
+      const parts = [get("locality") || get("postal_town") || get("sublocality") || get("administrative_area_level_3") || get("administrative_area_level_2"),
+        get("administrative_area_level_1"), get("country")];
+      return [...new Set(parts.filter(Boolean))].join(", ") || null;
+    } catch (err) {
+      console.info("[panoguru] reverse geocoding unavailable:", err?.code || err?.message || err);
+      return null;
+    }
+  }
+
   /** Crosshair cursor while guessing, hand cursor on result maps. */
   function setGuessMode(on) {
     map?.setOptions({ draggableCursor: on ? "crosshair" : "grab" });
@@ -223,5 +253,5 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov 
     if (pano) google.maps.event.trigger(pano, "resize");
   }
 
-  return { name: "google", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize };
+  return { name: "google", load, findPanorama, showPanorama, returnToStart, createMap, setGuess, setGuessMode, clearOverlays, showResult, resetView, resize, placeName };
 }
