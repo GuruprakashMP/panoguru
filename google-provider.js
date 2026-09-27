@@ -37,7 +37,7 @@ function answerIcon() {
   return { url: pinDataUrl("#10b981", "#065f46", "#047857", ANSWER_INNER), scaledSize: new google.maps.Size(36, 46), anchor: new google.maps.Point(18, 45) };
 }
 
-export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {}) {
+export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus, onPov } = {}) {
   let libs = null;
   let pano = null;
   let map = null;
@@ -124,6 +124,7 @@ export function createGoogleProvider(apiKey, { onAuthError, onPanoStatus } = {})
         if (s !== "OK") onPanoStatus?.(s, pano.getPano());
       });
       pano.addListener("pano_changed", () => console.info("[panoguru] pano_changed:", pano.getPano()));
+      pano.addListener("pov_changed", () => onPov?.(pano.getPov().heading));
       return;
     }
     pano.setPano(panoId);

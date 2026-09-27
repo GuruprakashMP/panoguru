@@ -12,7 +12,7 @@ function seeded(seed) {
   return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
-export function createMockProvider({ countries = [] } = {}) {
+export function createMockProvider({ countries = [], onPov } = {}) {
   let panoEl = null, panoCanvas = null, panoState = { seed: 1, heading: 0, startId: null, id: null };
   let mapEl = null, mapCanvas = null, mapClick = null;
   let guess = null, resultPairs = [];
@@ -71,7 +71,7 @@ export function createMockProvider({ countries = [] } = {}) {
       container.appendChild(panoEl);
       let dragging = false, lastX = 0;
       const down = (x) => { dragging = true; lastX = x; };
-      const move = (x) => { if (!dragging) return; panoState.heading = (panoState.heading - (x - lastX) / 4 + 360) % 360; lastX = x; drawPano(); };
+      const move = (x) => { if (!dragging) return; panoState.heading = (panoState.heading - (x - lastX) / 4 + 360) % 360; lastX = x; drawPano(); onPov?.(panoState.heading); };
       panoEl.addEventListener("pointerdown", (e) => { down(e.clientX); panoEl.setPointerCapture(e.pointerId); });
       panoEl.addEventListener("pointermove", (e) => move(e.clientX));
       panoEl.addEventListener("pointerup", () => { dragging = false; });

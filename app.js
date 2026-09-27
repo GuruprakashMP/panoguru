@@ -1,7 +1,7 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=7";
-import { createGoogleProvider } from "./google-provider.js?v=7";
-import { createMockProvider } from "./mock-provider.js?v=7";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=8";
+import { createGoogleProvider } from "./google-provider.js?v=8";
+import { createMockProvider } from "./mock-provider.js?v=8";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -15,7 +15,7 @@ const params = new URLSearchParams(location.search);
 const $ = (id) => document.getElementById(id);
 
 const ui = {
-  pano: $("pano"), panoWrap: $("pano-wrap"), mapWrap: $("map-wrap"), map: $("map"), mapTap: $("map-tap"), mapClose: $("map-close"), guess: $("btn-guess"), mapHint: $("map-hint"),
+  pano: $("pano"), panoWrap: $("pano-wrap"), mapWrap: $("map-wrap"), map: $("map"), mapTap: $("map-tap"), mapClose: $("map-close"), guess: $("btn-guess"), mapHint: $("map-hint"), openMap: $("btn-open-map"), compassRose: $("compass-rose"),
   screens: { menu: $("screen-menu"), setup: $("screen-setup"), game: $("screen-game"), result: $("screen-result"), final: $("screen-final") },
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
@@ -31,6 +31,10 @@ const state = {
 };
 
 // ---------- small UI helpers ----------
+function setCompass(heading) {
+  // Rotate the rose so that its N points towards true north relative to the view direction (up = where you look).
+  if (Number.isFinite(heading)) ui.compassRose.style.transform = `rotate(${-heading}deg)`;
+}
 function showScreen(name) {
   for (const [k, el] of Object.entries(ui.screens)) el.classList.toggle("hidden", k !== name);
 }
@@ -46,8 +50,11 @@ function toast(msg, kind = "error", ms = 5000) {
   toastTimer = setTimeout(() => ui.toast.classList.add("hidden"), ms);
 }
 function setMapMode(mode) {
-  ui.mapWrap.classList.remove("hidden", "mini", "expanded", "result", "final");
-  ui.mapWrap.classList.add(mode);
+  ui.mapWrap.classList.remove("hidden", "mini", "mini-hidden", "expanded", "result", "final");
+  const buttonStyle = (CFG.miniMap || "button") === "button";
+  ui.mapWrap.classList.add(mode === "mini" && buttonStyle ? "mini-hidden" : mode);
+  ui.openMap.classList.toggle("hidden", !(mode === "mini" && buttonStyle));
+  ui.openMap.innerHTML = state.guess ? "&#x1F5FA;&#xFE0F; Map &middot; pin placed" : "&#x1F5FA;&#xFE0F; Open map";
   ui.mapClose.textContent = mode === "expanded" ? "\u2715" : "\u26F6";
   ui.mapClose.setAttribute("aria-label", mode === "expanded" ? "Shrink map" : "Enlarge map");
   ui.mapClose.title = mode === "expanded" ? "Shrink map (Esc)" : "Enlarge map";
@@ -61,12 +68,13 @@ function storage(get, key, value) {
 async function ensureProvider() {
   if (state.provider) return true;
   if (state.mock) {
-    state.provider = createMockProvider({ countries: state.countries });
+    state.provider = createMockProvider({ countries: state.countries, onPov: setCompass });
     return true;
   }
   const key = CFG.googleMapsApiKey || storage(true, LS_KEY) || "";
   if (!key) { showScreen("setup"); return false; }
   state.provider = createGoogleProvider(key, {
+    onPov: setCompass,
     onPanoStatus: (status, panoId) => {
       // The chosen panorama could not be displayed: report and move to another place (max 3 times per round).
       state.panoRetries = (state.panoRetries || 0) + 1;
@@ -200,6 +208,7 @@ async function nextRound() {
 
   ui.panoWrap.classList.remove("hidden", "invisible");
   state.provider.showPanorama(ui.pano, { panoId: loc.panoId, heading: loc.heading });
+  setCompass(loc.heading);
   state.provider.clearOverlays();
   state.provider.resetView();
   ui.guess.disabled = true;
@@ -219,6 +228,7 @@ function onMapClick(point) {
     ui.guess.disabled = false;
     ui.guess.textContent = "Guess";
     ui.mapHint.classList.add("hidden");
+    ui.openMap.innerHTML = "&#x1F5FA;&#xFE0F; Map &middot; pin placed";
   }
 }
 
@@ -235,6 +245,7 @@ function submitGuess() {
   ui.resCountry.textContent = state.current.country ? `It was in ${state.current.country}` : "";
   ui.next.textContent = state.round >= CFG.rounds ? "See results" : "Next round";
   ui.panoWrap.classList.add("invisible");
+  ui.openMap.classList.add("hidden");
   state.provider.setGuessMode?.(false);
   setMapMode("result");
   state.provider.showResult([{ guess: state.guess, answer }]);
@@ -264,6 +275,7 @@ function updateBest() {
 }
 
 function backToMenu() {
+  ui.openMap.classList.add("hidden");
   ui.panoWrap.classList.add("invisible");
   setMapMode("hidden");
   showScreen("menu");
@@ -287,6 +299,7 @@ function bind() {
   ui.share.addEventListener("click", share);
   // The small map is a thumbnail: click/tap it to open the big map, place the pin there, Guess. The corner button shrinks it again.
   ui.mapTap.addEventListener("click", () => setMapMode("expanded"));
+  ui.openMap.addEventListener("click", () => setMapMode("expanded"));
   ui.mapClose.addEventListener("click", () => setMapMode(ui.mapWrap.classList.contains("expanded") ? "mini" : "expanded"));
   ui.saveKey.addEventListener("click", () => {
     const key = ui.apiKey.value.trim();

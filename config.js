@@ -8,6 +8,10 @@ window.PANOGURU_CONFIG = {
   // (stored only on that device) - handy for local testing.
   googleMapsApiKey: "AIzaSyAw930OuURXC9aHmVN3-WNrZqvNyKjm9Qk",
 
+  // Small map while playing: "button" (just an "Open map" button, keeps the view clear)
+  // or "thumbnail" (a small live map preview in the corner)
+  miniMap: "button",
+
   // Game rules
   rounds: 5,
   maxScorePerRound: 5000,

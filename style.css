@@ -93,6 +93,14 @@ a { color: var(--primary-hover); }
 }
 .chip-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
 #btn-return { margin-left: auto; }
+.compass { display: flex; align-items: center; margin-left: 4px; }
+.compass svg { display: block; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); }
+#compass-rose { transform-origin: 50px 50px; transition: transform 0.12s linear; }
+.map-open-btn {
+  position: fixed; right: 12px; bottom: calc(14px + var(--safe-b)); z-index: 21; box-shadow: var(--shadow); padding: 12px 20px; font-size: 1rem;
+}
+/* "button" style: the map is kept alive but invisible until opened */
+#map-wrap.mini-hidden { right: 0; bottom: 0; width: 2px; height: 2px; opacity: 0; pointer-events: none; border: 0; }
 
 /* Map */
 #map-wrap {
