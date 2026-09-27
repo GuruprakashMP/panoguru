@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=13";
-import { createGoogleProvider } from "./google-provider.js?v=13";
-import { createMockProvider } from "./mock-provider.js?v=13";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=13";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=14";
+import { createGoogleProvider } from "./google-provider.js?v=14";
+import { createMockProvider } from "./mock-provider.js?v=14";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=14";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -34,7 +34,7 @@ const ui = {
 const state = {
   provider: null, mock: params.get("mock") === "1", countries: [],
   round: 0, total: 0, rounds: [], current: null, next: null, guess: null, busy: false,
-  stats: emptyStats(), cloud: null, user: null,
+  stats: emptyStats(), cloud: null, user: null, places: {},
 };
 
 // ---------- small UI helpers ----------
@@ -137,25 +137,68 @@ function buildLocation(found, country) {
   return { panoId: found.panoId, lat: found.lat, lng: found.lng, country: countryName, countryCode: actual?.c || "", continent: actual?.ct || "", place, heading: Math.floor(Math.random() * 360) };
 }
 
-async function findLocation(onProgress) {
+/**
+ * Choose where the next round starts.
+ *  - "town" candidates: a random spot within a few km of a real town/village (more clues, easier);
+ *  - "wild" candidates: a uniformly random point in the country (harder, remote roads).
+ *  Early rounds lean towards towns, late rounds towards the wild.
+ *  Variety: no country twice in a game, at most two rounds per continent.
+ */
+function townShare(roundNumber) {
+  const r = Math.max(1, roundNumber);
+  if (CFG.townShare != null) return CFG.townShare;
+  return r <= 2 ? 0.85 : r === 3 ? 0.6 : 0.4;
+}
+function pickCountryForGame(countries, used) {
+  for (let i = 0; i < 12; i++) {
+    const c = weightedPick(countries, "w");
+    if (used.countries.has(c.c)) continue;
+    if ((used.continents.get(c.ct) || 0) >= 2) continue;
+    return c;
+  }
+  return weightedPick(countries, "w");
+}
+function usedSoFar() {
+  const used = { countries: new Set(), continents: new Map() };
+  const seen = [...state.rounds.map((r) => ({ c: r.countryCode, ct: r.continent })), state.current ? { c: state.current.countryCode, ct: state.current.continent } : null].filter(Boolean);
+  for (const x of seen) { if (x.c) used.countries.add(x.c); if (x.ct) used.continents.set(x.ct, (used.continents.get(x.ct) || 0) + 1); }
+  return used;
+}
+function pointNearTown(country) {
+  const list = state.places?.[country.c];
+  if (!list || !list.length) return null;
+  const town = weightedPick(list.map(([lat, lng, w]) => ({ lat, lng, w })), "w");
+  // uniform point in a disk of radius R km around the town centre
+  const R = CFG.townRadiusKm || 6;
+  const d = R * Math.sqrt(Math.random()), a = Math.random() * 2 * Math.PI;
+  const lat = town.lat + (d * Math.cos(a)) / 111;
+  const lng = town.lng + (d * Math.sin(a)) / (111 * Math.cos((town.lat * Math.PI) / 180) || 1);
+  return { lat, lng };
+}
+
+async function findLocation(onProgress, forRound = state.round + 1) {
   const countries = state.countries;
   const parallel = CFG.parallelSearches || 3;
   const deadline = Date.now() + (CFG.searchTimeoutMs || 25000);
+  const used = usedSoFar();
+  const pTown = townShare(forRound);
   let attempts = 0;
   const statuses = {};
   while (Date.now() < deadline && attempts < (CFG.maxAttempts || 45)) {
     if (!state.provider) throw new Error("Map provider unavailable (API key rejected?)");
     const batch = [];
     for (let i = 0; i < parallel; i++) {
-      const country = weightedPick(countries, "w");
-      const pt = randomPointInCountry(country);
+      const country = pickCountryForGame(countries, used);
+      const town = Math.random() < pTown ? pointNearTown(country) : null;
+      const pt = town || randomPointInCountry(country);
+      const radiusKm = town ? Math.min(country.km, CFG.townSearchKm || 10) : country.km;
       const strict = attempts % 2 === 0; // alternate: official-only search, then any outdoor imagery
       attempts++;
-      batch.push(state.provider.findPanorama(pt, country.km, { strict }).then((r) => ({ r, country })));
+      batch.push(state.provider.findPanorama(pt, radiusKm, { strict }).then((r) => ({ r, country, town: !!town })));
     }
     const results = await Promise.all(batch);
-    for (const { r, country } of results) {
-      if (r?.status === "OK") return buildLocation(r, country);
+    for (const { r, country, town } of results) {
+      if (r?.status === "OK") { const loc = buildLocation(r, country); loc.kind = town ? "town" : "wild"; return loc; }
       const s = r?.status || "NONE";
       statuses[s] = (statuses[s] || 0) + 1;
     }
@@ -215,7 +258,7 @@ async function nextRound() {
   state.round += 1;
   state.guess = null;
   state.panoRetries = 0;
-  console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"}`);
+  console.info(`[panoguru] round ${state.round}: pano ${loc.panoId} in ${loc.country || "?"} (${loc.kind || "fallback"})`);
   if (state.round < CFG.rounds) prefetchNext(); else state.next = null;
 
   ui.peekBar.classList.add("hidden");
@@ -480,8 +523,9 @@ async function init() {
     state.cloud.load().then(() => state.cloud.onUser(applyUser)).catch((err) => { console.warn("Firebase unavailable", err); ui.signIn.classList.add("hidden"); });
   }
   try {
-    const res = await fetch("countries.json");
-    state.countries = (await res.json()).countries;
+    const [cRes, pRes] = await Promise.all([fetch("countries.json"), fetch("places.json")]);
+    state.countries = (await cRes.json()).countries;
+    state.places = (await pRes.json()).places;
   } catch (err) {
     console.error(err);
     toast("Could not load countries.json");

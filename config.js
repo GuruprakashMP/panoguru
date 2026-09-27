@@ -36,6 +36,14 @@ window.PANOGURU_CONFIG = {
   maxScorePerRound: 5000,
   scoreScaleKm: 1492.7, // GeoGuessr-style: score = 5000 * exp(-distance / scale)
 
+  // Location picking. Most rounds start near a real town or village (clues to
+  // read); the rest are uniformly random points in the country (remote roads).
+  // townShare: null = automatic arc (rounds 1-2: 85% town, round 3: 60%, rounds 4-5: 40%);
+  // set a number 0..1 to force a fixed share. townRadiusKm = how far from the town centre.
+  townShare: null,
+  townRadiusKm: 6,
+  townSearchKm: 10,
+
   // Street View search: parallel lookups per batch, total attempts and time
   // budget before falling back to a well-covered city
   parallelSearches: 3,

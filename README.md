@@ -106,6 +106,7 @@ what protect the data (each player can only read and write their own document).
 | `google-provider.js` | Street View + Google Map adapter (one instance each, reused every round) |
 | `mock-provider.js` | key-free stand-in used by `?mock=1` |
 | `countries.json` | simplified outlines of ~107 countries with Street View coverage (Natural Earth, public domain) with per-country weights and search radius |
+| `places.json` | ~5,300 towns and villages (Natural Earth, public domain) used to start rounds near inhabited places |
 | `stats.js` | player statistics (local storage, and Firebase sign-in + Firestore when configured) |
 | `config.js` | name, tagline, API key, rules, optional Firebase config |
 | `manifest.webmanifest`, `sw.js`, `icon*.png/svg` | installable web app |
@@ -113,10 +114,14 @@ what protect the data (each player can only read and write their own document).
 ## Rules
 
 - Score per round: `5000 * exp(-distance_km / 1492.7)`, perfect (5,000) within 25 m.
-- Locations: a country is picked with a coverage-based weight, a random point
-  inside it is drawn, and the nearest official outdoor Street View panorama
-  within the country's search radius is used. The next round's location is
-  fetched in the background while you play.
+- Locations: a country is picked with a coverage-based weight (never the same
+  country twice in a game, at most two rounds per continent). Most rounds start
+  within a few km of a real town or village (Natural Earth populated places,
+  `places.json`), the rest at a uniformly random point in the country; rounds
+  1-2 lean towards towns, rounds 4-5 towards remote roads. The nearest official
+  outdoor Street View panorama is used, and the next round's location is
+  fetched in the background while you play. Tunables: `townShare`,
+  `townRadiusKm` in `config.js`; per-country weights and radii in `countries.json`.
 
 ## Renaming
 
