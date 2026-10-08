@@ -108,7 +108,7 @@ what protect the data (each player can only read and write their own document).
 | `countries.json` | simplified outlines of ~107 countries with Street View coverage (Natural Earth, public domain) with per-country weights and search radius |
 | `places.json` | ~5,300 towns and villages (Natural Earth, public domain) used to start rounds near inhabited places |
 | `stats.js` | player statistics (local storage, and Firebase sign-in + Firestore when configured) |
-| `clues.html`, `clues/*.jpg` | in-game clue book (driving side, scripts, signs, bollards, plates, country cards), opened with the 📖 button or `C` |
+| `clues.html`, `clues/*.jpg` | in-game clue book (driving side, scripts, signs, bollards, plates, flags, country cards), opened with the 📖 button or `C`. Maps: own renders from Natural Earth (public domain), flag-icons (MIT) and Wikimedia Commons maps (CC BY-SA / CC BY / CC0, credited inside the page) |
 | `config.js` | name, tagline, API key, rules, optional Firebase config |
 | `manifest.webmanifest`, `sw.js`, `icon*.png/svg` | installable web app |
 

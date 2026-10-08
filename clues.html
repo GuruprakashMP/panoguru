@@ -62,9 +62,9 @@
     </div>
     <input id="q" class="search" type="search" placeholder="Search: ñ, bollard, yellow line, Thai, snorkel, .pt, +34 …" autocomplete="off" />
     <div class="chips">
-      <a href="#flow">20-second method</a><a href="#side">Driving side</a><a href="#scripts">Scripts</a><a href="#latin">Which Latin language?</a>
+      <a href="#flow">20-second method</a><a href="#where">Coverage</a><a href="#side">Driving side</a><a href="#scripts">Scripts</a><a href="#latin">Which Latin language?</a>
       <a href="#words">Sign words</a><a href="#roads">Roads &amp; signs</a><a href="#bollards">Bollards</a><a href="#plates">Plates</a>
-      <a href="#poles">Poles</a><a href="#camera">Google car</a><a href="#nature">Landscape &amp; sun</a><a href="#cards">Country cards</a><a href="#codes">Codes &amp; domains</a>
+      <a href="#poles">Poles</a><a href="#camera">Google car</a><a href="#nature">Landscape &amp; sun</a><a href="#flags">Flags</a><a href="#cards">Country cards</a><a href="#codes">Codes &amp; domains</a><a href="#credits">Credits</a>
     </div>
     <p class="legend"><span class="tag sure">solid</span> reliable rule &nbsp; <span class="tag meta">meta</span> community observation, usually right &nbsp; <span class="tag approx">≈</span> rough / regional, treat as a hint</p>
   </header>
@@ -83,13 +83,23 @@
     </div>
   </details>
 
+  <details id="where">
+    <summary>Where can the game drop you? (Street View coverage)</summary>
+    <div class="body">
+      <p>Rounds start only in the <b>107 countries</b> coloured on the driving-side map below (official Google coverage, weighted by road network). Most of Africa, the Middle East outside the Gulf, China, Iran, Pakistan and Central Asia (except Kazakhstan/Kyrgyzstan) are <b>never</b> an answer, so do not guess them.</p>
+      <img class="map" src="clues/streetview-coverage.jpg?v=2" alt="Google Street View coverage map" loading="lazy" />
+      <p class="legend">Google Street View coverage worldwide (ZwishyZwashy, Wikimedia Commons, CC0). Dark blue = full coverage, light blue = partial/roads only, pale = little or none.</p>
+    </div>
+  </details>
+
   <details id="side">
     <summary>Driving side</summary>
     <div class="body">
       <p><b>Drives on the LEFT</b> (the 24 covered countries in this game) <span class="tag sure">solid</span>: United Kingdom, Ireland, Malta, Japan, Australia, New Zealand, India, Sri Lanka, Bangladesh, Nepal, Bhutan, Thailand, Malaysia, Singapore, Indonesia, Hong Kong, Macao, South Africa, Lesotho, Eswatini, Botswana, Kenya, Uganda, Bermuda.</p>
       <p><b>Everything else drives on the RIGHT</b>: all of continental Europe (incl. Faroe, Greenland, Iceland), the Americas (incl. Puerto Rico, Curaçao), Russia and Central Asia, the Middle East, Turkey, Taiwan, South Korea, Vietnam, Cambodia, Laos, Mongolia, Philippines, Ghana, Nigeria, Senegal, Rwanda, Tunisia, Egypt, Madagascar, Guam, N. Marianas, American Samoa.</p>
       <p class="note">Tip: if no car is visible, use road markings (centre line vs. edge) and which side the arrows/bollards with red reflectors face; or the position of the Google car over the lane.</p>
-      <img class="map" src="clues/driving-side.jpg" alt="Left/right driving map" loading="lazy" />
+      <img class="map" src="clues/driving-side.jpg?v=2" alt="Left/right driving map of the countries in this game" loading="lazy" />
+      <p class="legend">Made for this game from Natural Earth outlines (public domain). Grey countries never appear.</p>
     </div>
   </details>
 
@@ -115,7 +125,12 @@
         <tr><td class="script">ཐིམ་ཕུ</td><td>Tibetan-style (Dzongkha)</td><td>Bhutan.</td></tr>
         <tr><td class="script">Latin (ABC)</td><td>Latin</td><td>Most of the world: see the next section to pick the language.</td></tr>
       </table>
-      <img class="map" src="clues/latin-alphabet.jpg" alt="Countries using the Latin alphabet" loading="lazy" />
+      <img class="map" src="clues/scripts.jpg?v=2" alt="Main script per country in this game" loading="lazy" />
+      <p class="legend">Main script on signs, countries in this game only (made from Natural Earth outlines). Grey = not in the game.</p>
+      <img class="map" src="clues/writing-systems.jpg?v=2" alt="Writing systems of the world" loading="lazy" />
+      <p class="legend">Writing systems worldwide (Quintucket, Canuckguy and others, Wikimedia Commons, CC BY-SA 3.0). <b>Green</b> = abjads (Arabic, Hebrew) · <b>orange/yellow</b> = abugidas (Indian scripts, Thai, Lao, Khmer, Ethiopic) · <b>blue/cyan</b> = alphabets (Latin, Cyrillic, Greek, Armenian, Georgian, Mongolian) · <b>red</b> = Chinese characters · <b>pink</b> = Japanese and Korean mixes.</p>
+      <img class="map" src="clues/arabic.jpg?v=2" alt="Arabic-speaking world" loading="lazy" />
+      <p class="legend">Where Arabic is used (Keteracel / Paul Andrew Loy, Wikimedia Commons, CC BY-SA 3.0). <b>Dark green</b> = sole official language · <b>light green</b> = sole official, minority native speakers · <b>dark blue</b> = co-official with Arabic majority · <b>light blue</b> = co-official for minorities/history · <b>light grey</b> = minority only. In this game Arabic script appears in UAE, Qatar, Oman, Jordan, Lebanon, Tunisia, Egypt (and under Hebrew in Israel).</p>
     </div>
   </details>
 
@@ -155,6 +170,12 @@
         <tr><td class="big">"Rúa", "Praza"</td><td>Galician</td><td>Galicia (NW Spain; your home region on the map).</td></tr>
         <tr><td class="big">"Kalea", tx, tz, k everywhere</td><td>Basque</td><td>Basque Country (Spain) and SW France.</td></tr>
       </table>
+      <img class="map" src="clues/spanish.jpg?v=2" alt="Spanish-speaking world" loading="lazy" />
+      <p class="legend">Spanish-speaking world (Salvabl, Wikimedia Commons, CC BY-SA 4.0). <b>Dark</b> = majority native language · <b>medium</b> = co-official but not majority · <b>light</b> = secondary or cultural language (more than 20% speakers). In this game: Spain, Mexico, Guatemala, Costa Rica, Panama, Dominican Rep., Puerto Rico, Colombia, Ecuador, Peru, Bolivia, Chile, Argentina, Uruguay (+ Andorra, Curaçao partly).</p>
+      <img class="map" src="clues/portuguese.jpg?v=2" alt="Portuguese-speaking world" loading="lazy" />
+      <p class="legend">Portuguese-speaking world (Filipe Fortes de Oliveira Portela, Wikimedia Commons, CC0). <b>Darker blue</b> = mother language of more than 50%. In this game only <b>Portugal</b> and <b>Brazil</b> (Macao has Portuguese on signs next to Chinese).</p>
+      <img class="map" src="clues/french.jpg?v=2" alt="Countries where French is official" loading="lazy" />
+      <p class="legend">Countries where French is official (Underlying lk, Wikimedia Commons, CC BY-SA 4.0). <b>Dark</b> = only official language · <b>light</b> = co-official. In this game: France, Monaco, Belgium, Switzerland, Luxembourg, Canada (Quebec), Senegal, Rwanda, Madagascar, plus Tunisia and Lebanon where French is everywhere on signs without being official.</p>
     </div>
   </details>
 
@@ -205,8 +226,8 @@
     <div class="body">
       <table>
         <tr><th>Clue</th><th>Points to</th></tr>
-        <tr><td><b>Double yellow centre line</b>, white edge lines <span class="tag sure">solid</span></td><td>USA, Canada, Mexico, Brazil (yellow centre), Argentina, Chile ≈ (mostly white), Colombia, Peru, Ecuador, Bolivia, Central America, Philippines (often), Thailand (yellow centre common), Indonesia (yellow medians on national roads), Malaysia (some), South Korea (yellow centre on 2-way roads), Japan (yellow = no overtaking), Taiwan (yellow centre), Norway (yellow centre, white edges), Finland (older yellow centre, newer white).</td></tr>
-        <tr><td><b>All white lines</b> <span class="tag sure">solid</span></td><td>Most of Europe (Spain, Portugal, France, Germany, Italy, Benelux, Poland, Czechia, Slovakia, Hungary, Romania, Balkans, Baltics, Sweden, Denmark), Russia, Ukraine, Turkey, Australia, NZ, India (mostly), Chile ≈, Mongolia.</td></tr>
+        <tr><td><b>Double yellow centre line</b>, white edge lines <span class="tag sure">solid</span></td><td>USA, Canada, Mexico, Brazil, Colombia, Peru, Ecuador, Bolivia ≈, Central America, Dominican Rep., Puerto Rico, Philippines, Thailand, Vietnam, Cambodia, Laos, South Korea (yellow centre on 2-way roads), Taiwan, Norway (yellow centre, white edges), Finland (older yellow centre, newer white), Kenya ≈, Jordan ≈, Lebanon ≈, UAE ≈ (per the map below).</td></tr>
+        <tr><td><b>All white lines</b> <span class="tag sure">solid</span></td><td>Most of Europe (Spain, Portugal, France, Germany, Italy, Benelux, Poland, Czechia, Slovakia, Hungary, Romania, Balkans, Baltics, Sweden, Denmark), Russia, Ukraine, Turkey, India (mostly), Malaysia, Indonesia, Mongolia, Kazakhstan, Israel, Tunisia, Egypt, Ghana, Nigeria, Senegal, Madagascar, Sri Lanka, Bangladesh, Nepal. <b>Both colours</b>: Australia, NZ, Japan (yellow = no overtaking), Argentina, Chile, Uruguay.</td></tr>
         <tr><td><b>Yellow edge lines</b> (centre white) <span class="tag sure">solid</span></td><td>South Africa, Botswana, Lesotho, Eswatini, Kenya, Israel, UAE; Jordan ≈, Oman ≈. Ireland: dashed yellow edge lines. Switzerland: white lines but yellow bus/taxi lanes and yellow zebra crossings.</td></tr>
         <tr><td><b>Yellow diamond warning signs</b> <span class="tag sure">solid</span></td><td>USA, Canada, Mexico, Central &amp; South America (Brazil, Argentina, Chile, Colombia, Peru, Ecuador, Bolivia, Uruguay, Guatemala, DR, Puerto Rico), Australia, NZ, Japan, Thailand, Malaysia, Indonesia, Philippines, Ireland (the only European country with yellow diamonds).</td></tr>
         <tr><td><b>Red-bordered triangle warning signs</b> <span class="tag sure">solid</span></td><td>Europe (white inside; Sweden/Finland/Greece/Iceland/Poland yellow inside), Russia, Turkey, India, South Africa, Kenya, Israel, Jordan, South Korea, Vietnam, Sri Lanka, Bangladesh. Taiwan and Cambodia ≈ mixed shapes.</td></tr>
@@ -218,13 +239,17 @@
         <tr><td>Road number prefixes on signs</td><td>Spain A-/AP- (motorway), N- (national), plus two-letter province roads (e.g. CL-, GR-, PO-); France A, N, D (D = department); Germany A, B, L/K; Italy A, SS, SP; Poland A, S, DK, DW; UK M, A, B; Ireland M, N, R; Brazil BR-; Mexico MEX; USA Interstate shield, US route shield, state route; Australia M/A/B/C; India NH (national highway), SH; Russia M-, R-, A-; Turkey D-/O-; Thailand numbered shields; Philippines "N" numbers; Chile "Ruta 5"; Argentina RN/RP.</td></tr>
         <tr><td>Pedestrian crossing style</td><td>Zebra white everywhere; Switzerland yellow; Taiwan/Japan white; Russia white with yellow stripes between (yellow/white zebra) <span class="tag meta">meta</span>; Ukraine similar; Czech/Slovakia white; UK zebra with black/white striped poles and orange globes (Belisha beacons).</td></tr>
       </table>
+      <img class="map" src="clues/centre-line-colour.jpg?v=2" alt="Centre line colour by country" loading="lazy" />
+      <p class="legend">Colour of the road centre line (Ncysea, Wikimedia Commons, CC BY-SA 4.0). <b>Yellow</b> = yellow centre line · <b>pale yellow</b> = both colours used · <b>white</b> = white centre line · <b>grey</b> = no data.</p>
+      <img class="map" src="clues/sign-conventions.jpg?v=2" alt="Vienna Convention on Road Signs status map" loading="lazy" />
+      <p class="legend">Vienna Convention on Road Signs and Signals (Fry1989, Wikimedia Commons, CC BY-SA 4.0). <b>Dark green</b> = signed and ratified · <b>light green</b> = acceded later · <b>orange</b> = signed but never ratified (UK, Mexico, Brazil, Thailand, Indonesia, South Korea ...) · <b>grey</b> = not a party (USA, Canada, Australia, NZ, Japan, Malaysia, Argentina, Ireland ...) · <b>dark blue</b> = SADC manual (southern Africa) · <b>red</b> = Central American manual. Rule of thumb: green countries use red-bordered triangle warning signs; grey/orange countries in the Americas, Australia, Japan and SE Asia use yellow diamonds (exceptions: UK and South Korea use triangles).</p>
     </div>
   </details>
 
   <details id="bollards">
     <summary>Bollards (roadside posts) <span class="tag meta">meta</span></summary>
     <div class="body">
-      <p class="note">Bollards are the strongest Europe tell once you know them. Descriptions from the GeoGuessr community; verify with your own screenshots over time.</p>
+      <p class="note">Bollards are the strongest Europe tell once you know them. Descriptions from the GeoGuessr community; verify with your own screenshots over time. Photos: <a href="https://geohints.com/Bollards" target="_blank" rel="noopener">GeoHints bollards</a> · <a href="https://www.plonkit.net/guide" target="_blank" rel="noopener">PlonkIt world guide</a> (open in a new tab).</p>
       <table>
         <tr><th>Country</th><th>Bollard</th></tr>
         <tr><td>Spain</td><td>Slim white post, slightly split/hollow-looking top, <b>yellow</b> reflector (often numbered).</td></tr>
@@ -264,6 +289,7 @@
   <details id="plates">
     <summary>Licence plates (blurred, but colour and shape survive)</summary>
     <div class="body">
+      <p class="note">Photos: <a href="https://geohints.com/Plates" target="_blank" rel="noopener">GeoHints licence plates</a>.</p>
       <table>
         <tr><th>Plate look</th><th>Country</th></tr>
         <tr><td><b>Yellow</b> front and rear <span class="tag sure">solid</span></td><td>Netherlands, Luxembourg, Israel (yellow with blue strip), Colombia (yellow), Laos ≈.</td></tr>
@@ -285,6 +311,7 @@
   <details id="poles">
     <summary>Utility poles, guardrails, street furniture <span class="tag meta">meta</span></summary>
     <div class="body">
+      <p class="note">Photos: <a href="https://geohints.com/Poles" target="_blank" rel="noopener">GeoHints poles</a>.</p>
       <ul>
         <li><b>Japan</b>: grey concrete poles with yellow/black bands at the base, lots of overhead cables, small white street-name plates, vending machines, blue address plates.</li>
         <li><b>Poland</b>: concrete poles with "ladder" holes; <b>Hungary</b>: concrete poles, often angled/split at the top; <b>Romania</b>: concrete, round, many with a small "H" shape top.</li>
@@ -309,6 +336,7 @@
   <details id="camera">
     <summary>Google car and camera meta <span class="tag meta">meta</span></summary>
     <div class="body">
+      <p class="note">Photos: <a href="https://geohints.com/Cars" target="_blank" rel="noopener">GeoHints Google cars</a>.</p>
       <ul>
         <li><b>Kenya</b>: a black <b>snorkel</b> (tube) visible at the front-right of the car.</li>
         <li><b>Ghana</b>: black tape or a roof rack visible; Senegal: ≈ car with roof rack; Nigeria: a police escort car often follows in rural coverage.</li>
@@ -338,6 +366,16 @@
         <li><b>Houses</b>: red tile roofs = Mediterranean/Balkans/Latin America; black slate roofs = Galicia/N. Portugal/N. Spain; wooden painted houses = Nordics/Russia/Canada; concrete flat roofs with rebar sticking out = Mexico, Middle East, India, Africa; corrugated iron = Africa, SE Asia, Australia (red/green tin roofs), NZ.</li>
         <li><b>Skies</b>: the camera generation changes sky colour more than the real sky does; do not over-read it.</li>
       </ul>
+      <img class="map" src="clues/koppen.jpg?v=2" alt="Köppen-Geiger climate map" loading="lazy" />
+      <p class="legend">Köppen-Geiger climate map 1991-2020 (Beck et al. 2023, Scientific Data, via Wikimedia Commons, CC BY 4.0). First letter: <b>A</b> tropical (Af rainforest, Am monsoon, Aw savanna) · <b>B</b> dry (BWh hot desert, BWk cold desert, BSh/BSk steppe) · <b>C</b> temperate (Cfa humid subtropical: SE USA, S Brazil, E China, Japan; Cfb oceanic: W Europe, NZ; Csa/Csb Mediterranean: Spain, Italy, Greece, California, Chile, Cape Town, SW Australia) · <b>D</b> continental with cold winters (Russia, Canada, Nordics, N USA, Mongolia) · <b>E</b> polar. Use it to place a scene inside a big country: red soil + Aw savanna = central Brazil, not the Amazon; Csb = Galicia/Portugal/Chile coast.</p>
+    </div>
+  </details>
+
+  <details id="flags">
+    <summary>Flags of the 107 countries</summary>
+    <div class="body">
+      <p class="note">Flags hang on schools, town halls, petrol stations, car dealers and balconies. Look for them at junctions and official buildings.</p>
+      <img class="map" src="clues/flags.jpg?v=2" alt="Flags of all countries in this game" loading="lazy" />
     </div>
   </details>
 
@@ -372,9 +410,9 @@
         <div class="card"><h4>Mexico</h4><p>Right · Spanish · "ALTO" stop, yellow centre lines, concrete poles, painted shop walls, speed bumps ("TOPE"), VW Beetles (old), flat roofs with water tanks · cactus north, jungle south.</p></div>
         <div class="card"><h4>Brazil</h4><p>Right · Portuguese · "PARE", yellow centre lines, concrete round poles, blue km markers, red soil, Mercosur plates (or grey), VW Gols, "Rua" · huge: sugarcane (SP), pine (south), dry (NE), jungle (N).</p></div>
         <div class="card"><h4>Argentina</h4><p>Right · Spanish (Italian-looking names) · "PARE", white or yellow lines, wooden poles, flat pampas, plates black (old) or Mercosur white · Renault/Peugeot cars; Patagonia gravel roads.</p></div>
-        <div class="card"><h4>Chile</h4><p>Right · Spanish · "PARE", mostly white lines, Andes always on one side, Atacama desert north, green south · long thin country: use the mountains' side (east).</p></div>
+        <div class="card"><h4>Chile</h4><p>Right · Spanish · "PARE", white and yellow lines, Andes always on one side, Atacama desert north, green south · long thin country: use the mountains' side (east).</p></div>
         <div class="card"><h4>Colombia / Peru / Ecuador / Bolivia</h4><p>Right · Spanish · Colombia: yellow plates, yellow centre lines, green mountains, "PARE"; Peru: white plates, dry coast, Andes, yellow-top bollards; Ecuador: red/white striped bollards, orange taxi plates, volcanoes; Bolivia: high altiplano, cholitas, older coverage.</p></div>
-        <div class="card"><h4>Uruguay / Guatemala / Dominican Rep. / Puerto Rico / Panama / Costa Rica</h4><p>Right · Spanish · Uruguay: white lines, square bollards, flat, "PARE"; Guatemala: "ALTO", volcanoes, chicken buses; DR: "PARE", palm trees, motorbikes; Puerto Rico: US-style signs with Spanish, mph; Panama: "ALTO", humid; Costa Rica: "ALTO", "Pura vida" signs ≈.</p></div>
+        <div class="card"><h4>Uruguay / Guatemala / Dominican Rep. / Puerto Rico / Panama / Costa Rica</h4><p>Right · Spanish · Uruguay: white and yellow lines, square bollards, flat, "PARE"; Guatemala: "ALTO", volcanoes, chicken buses; DR: "PARE", palm trees, motorbikes; Puerto Rico: US-style signs with Spanish, mph; Panama: "ALTO", humid; Costa Rica: "ALTO", "Pura vida" signs ≈.</p></div>
         <div class="card"><h4>Japan</h4><p><b>Left</b> · Japanese (kana + kanji) · 止まれ inverted triangle, yellow kei plates, grey concrete poles with cables, white km plates, vending machines, narrow roads · very clean, hills + rice fields.</p></div>
         <div class="card"><h4>South Korea</h4><p>Right · Hangul · yellow centre lines, green/blue signs, brick apartment blocks, red/blue speed signs, Hyundai/Kia everywhere · 정지.</p></div>
         <div class="card"><h4>Taiwan</h4><p>Right · Traditional Chinese (no kana, no hangul) · scooters everywhere, yellow centre lines, green road signs with English, betel-nut stands, mountains · 停.</p></div>
@@ -440,13 +478,31 @@
         <tr><td>+261</td><td>Madagascar</td><td>+996</td><td>Kyrgyzstan</td><td>+975</td><td>Bhutan</td></tr>
       </table>
       <p><b>Domains</b>: .es Spain · .pt Portugal · .fr France · .de Germany · .it Italy · .nl Netherlands · .be Belgium · .uk/.co.uk UK · .ie Ireland · .pl Poland · .cz Czechia · .sk Slovakia · .hu Hungary · .ro Romania · .hr Croatia · .si Slovenia · .rs Serbia · .bg Bulgaria · .gr Greece · .tr Turkey · .ru Russia · .ua Ukraine · .se Sweden · .no Norway · .fi Finland · .dk Denmark · .is Iceland · .ee/.lv/.lt Baltics · .ch Switzerland · .at Austria · .us USA · .ca Canada · .mx Mexico · .br Brazil · .ar Argentina · .cl Chile · .co Colombia · .pe Peru · .ec Ecuador · .bo Bolivia · .uy Uruguay · .jp Japan · .kr Korea · .tw Taiwan · .hk Hong Kong · .sg Singapore · .my Malaysia · .id Indonesia · .th Thailand · .ph Philippines · .vn Vietnam · .kh Cambodia · .la Laos · .in India · .lk Sri Lanka · .bd Bangladesh · .np Nepal · .mn Mongolia · .kz Kazakhstan · .kg Kyrgyzstan · .il Israel · .jo Jordan · .ae UAE · .qa Qatar · .om Oman · .tn Tunisia · .sn Senegal · .gh Ghana · .ng Nigeria · .ke Kenya · .ug Uganda · .rw Rwanda · .za South Africa · .bw Botswana · .au Australia · .nz New Zealand.</p>
-      <img class="map" src="clues/calling-codes.jpg" alt="Calling codes map" loading="lazy" />
-      <img class="map" src="clues/spanish.jpg" alt="Spanish-speaking countries" loading="lazy" />
-      <img class="map" src="clues/portuguese.jpg" alt="Portuguese-speaking countries" loading="lazy" />
+      <img class="map" src="clues/calling-codes.jpg?v=2" alt="Phone country codes map" loading="lazy" />
+      <p class="legend">Phone codes of the countries in this game, Europe enlarged below (made from Natural Earth outlines).</p>
     </div>
   </details>
 
-  <p class="note">Sources used for the community observations: GeoGuessr player guides (PlonkIt, GeoHints, GeoGhost, ReverseImageLocation), Wikipedia on road markings, plus general knowledge. Facts marked solid are stable rules; bollard, pole and camera metas change as Google re-drives countries.</p>
+  <details id="credits">
+    <summary>Credits and licences</summary>
+    <div class="body">
+      <p class="note">Text: community observations from GeoGuessr player guides (PlonkIt, GeoHints, GeoGhost, ReverseImageLocation), Wikipedia on road markings and traffic signs, plus general knowledge. Facts marked solid are stable rules; bollard, pole and camera metas change as Google re-drives countries.</p>
+      <ul class="note">
+        <li>Driving side, scripts and phone-code maps and this page: made for PanoGuru from <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> outlines (public domain); MIT licence like the rest of the game.</li>
+        <li>Flag drawings: <a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> by Panayiotis Lipiridis, MIT licence.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:GSVcoverage.png" target="_blank" rel="noopener">GSVcoverage.png</a>, ZwishyZwashy, CC0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Writing_systems_worldwide.svg" target="_blank" rel="noopener">Writing systems worldwide.svg</a>, Quintucket (based on Canuckguy and others), CC BY-SA 3.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Arabic_speaking_world.svg" target="_blank" rel="noopener">Arabic speaking world.svg</a>, Keteracel (Paul Andrew Loy), CC BY-SA 3.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Map-Hispanophone_World.svg" target="_blank" rel="noopener">Map-Hispanophone World.svg</a>, Salvabl, CC BY-SA 4.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Portuguese_Language_Map_-_Darker_Blue_-_Mother_Language_of_More_than_50%25.png" target="_blank" rel="noopener">Portuguese Language Map.png</a>, Filipe Fortes de Oliveira Portela, CC0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Countries_where_French_is_an_official_language.svg" target="_blank" rel="noopener">Countries where French is an official language.svg</a>, Underlying lk, CC BY-SA 4.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Colours_of_Centre_Line.svg" target="_blank" rel="noopener">Colours of Centre Line.svg</a>, Ncysea, CC BY-SA 4.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Vienna_Convention_on_Road_Signs_and_Signals.svg" target="_blank" rel="noopener">Vienna Convention on Road Signs and Signals.svg</a>, Fry1989, CC BY-SA 4.0.</li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Koppen-Geiger_Map_v2_World_1991%E2%80%932020.svg" target="_blank" rel="noopener">Köppen-Geiger Map v2 World 1991-2020.svg</a>, Beck, H.E. et al. (2023), Scientific Data, doi:10.1038/s41597-023-02549-6, CC BY 4.0.</li>
+      </ul>
+      <p class="note">The Wikimedia Commons maps are shown here rasterised and resized; each stays under its own licence as listed. Street View imagery and map tiles in the game itself are © Google.</p>
+    </div>
+  </details>
 </div>
 <script>
   // Simple filter: show only rows / list items / cards containing the query, open matching sections.
