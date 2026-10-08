@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PanoGuru clue book</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <style>
+    :root { --bg: #0f172a; --card: #111c33; --text: #e5eefc; --muted: #9fb0cc; --accent: #fbbf24; --primary: #10b981; --border: rgba(255,255,255,0.12); --warn: #f87171; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    a { color: #34d399; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 14px 14px 60px; }
+    header { position: sticky; top: 0; z-index: 5; background: rgba(15,23,42,0.96); backdrop-filter: blur(6px); padding: 10px 0; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 1.15rem; margin: 0 0 8px; line-height: 1.3; }
+    .hrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .hbtns { display: flex; gap: 6px; flex-shrink: 0; }
+    .hbtn { font: inherit; font-size: 0.82rem; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.08); color: var(--text); text-decoration: none; cursor: pointer; white-space: nowrap; }
+    .hbtn.primary { background: var(--primary); color: #04261a; border-color: transparent; font-weight: 700; }
+    .hidden { display: none !important; }
+    .search { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: var(--text); font: inherit; font-size: 1rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chips a { font-size: 0.78rem; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,0.08); color: var(--text); text-decoration: none; border: 1px solid var(--border); }
+    .chips a:hover { background: rgba(255,255,255,0.16); }
+    details { border: 1px solid var(--border); border-radius: 12px; background: var(--card); margin: 12px 0; }
+    summary { cursor: pointer; padding: 12px 14px; font-weight: 700; font-size: 1.02rem; list-style: none; display: flex; align-items: center; gap: 8px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: "\25B8"; color: var(--accent); font-size: 0.9rem; }
+    details[open] > summary::before { content: "\25BE"; }
+    .body { padding: 0 14px 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 6px 0 10px; }
+    th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    tr.hide, details.hide, li.hide { display: none; }
+    .tag { display: inline-block; font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,0.1); color: var(--muted); margin-left: 4px; vertical-align: middle; }
+    .tag.sure { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+    .tag.meta { background: rgba(251,191,36,0.18); color: var(--accent); }
+    .tag.approx { background: rgba(248,113,113,0.18); color: #fca5a5; }
+    .big { font-size: 1.35rem; }
+    .script { font-size: 1.3rem; }
+    ul { padding-left: 20px; margin: 6px 0; }
+    li { margin: 3px 0; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); }
+    .step b.n { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50%; background: var(--primary); color: #04261a; }
+    img.map { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); margin: 8px 0; }
+    .note { color: var(--muted); font-size: 0.85rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,0.03); }
+    .card h4 { margin: 0 0 4px; font-size: 1rem; }
+    .card p { margin: 0; font-size: 0.86rem; color: var(--text); }
+    .legend { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; }
+    kbd { background: rgba(255,255,255,0.1); border-radius: 4px; padding: 0 5px; font-family: inherit; }
+    @media (max-width: 600px) { table { font-size: 0.82rem; } th, td { padding: 5px 6px; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="hrow">
+      <h1>&#x1F4D6; PanoGuru clue book</h1>
+      <div class="hbtns"><a id="newtab" class="hbtn" href="clues.html" target="_blank" rel="noopener" title="Open the clue book in its own tab">&#x2197; New tab</a><button id="close" class="hbtn primary hidden" type="button" title="Back to the game (Esc)">&#x2715; Back to game</button></div>
+    </div>
+    <input id="q" class="search" type="search" placeholder="Search: ñ, bollard, yellow line, Thai, snorkel, .pt, +34 …" autocomplete="off" />
+    <div class="chips">
+      <a href="#flow">20-second method</a><a href="#side">Driving side</a><a href="#scripts">Scripts</a><a href="#latin">Which Latin language?</a>
+      <a href="#words">Sign words</a><a href="#roads">Roads &amp; signs</a><a href="#bollards">Bollards</a><a href="#plates">Plates</a>
+      <a href="#poles">Poles</a><a href="#camera">Google car</a><a href="#nature">Landscape &amp; sun</a><a href="#cards">Country cards</a><a href="#codes">Codes &amp; domains</a>
+    </div>
+    <p class="legend"><span class="tag sure">solid</span> reliable rule &nbsp; <span class="tag meta">meta</span> community observation, usually right &nbsp; <span class="tag approx">≈</span> rough / regional, treat as a hint</p>
+  </header>
+
+  <details id="flow" open>
+    <summary>The 20-second method (do this every round)</summary>
+    <div class="body">
+      <div class="step"><b class="n">1</b><div><b>Which side of the road is the car driving?</b> Look at the centre line and oncoming cars. Left = only 24 of the 107 countries in this game (see Driving side). This alone removes most of the world.</div></div>
+      <div class="step"><b class="n">2</b><div><b>Find any text.</b> Shop boards, road signs, number plates, posters. First identify the <i>script</i> (Latin, Cyrillic, Arabic, Thai …), then the <i>language</i> from special letters and common words.</div></div>
+      <div class="step"><b class="n">3</b><div><b>Road furniture.</b> Line colours (yellow centre = Americas, parts of Asia; white = most of Europe), sign shapes (yellow diamond warnings = Americas, Australia, Japan, SE Asia, Ireland; red triangles = Europe, Africa, India), bollards, guardrails, poles.</div></div>
+      <div class="step"><b class="n">4</b><div><b>Landscape and light.</b> Dry/red soil, eucalyptus, birch, palms, rice paddies, snow. Sun low in the north at midday = southern hemisphere; low in the south = northern hemisphere (see Landscape &amp; sun).</div></div>
+      <div class="step"><b class="n">5</b><div><b>Cars and people.</b> Plate colour/shape, car brands (Ladas in Russia, Protons in Malaysia, Holdens in Australia, tuk-tuks in Thailand/Sri Lanka/India, Kei cars in Japan), school bus colours, taxi colours.</div></div>
+      <div class="step"><b class="n">6</b><div><b>Zoom into the Google car itself</b> (look down and around): snorkel, roof rack, tape, escort car, low picture quality. These are country-specific (Google car section).</div></div>
+      <div class="step"><b class="n">7</b><div><b>Decide quickly, then refine.</b> Country first (worth most of the points), then region: coast vs mountains, big city vs village, road number prefixes on signs, phone area codes, town names on boards.</div></div>
+      <p class="note">Scoring reminder: 5,000 × e<sup>−km/1493</sup>. Guessing the right country but 500 km off still gives ~3,600; the wrong continent gives ~0. Country first, always.</p>
+    </div>
+  </details>
+
+  <details id="side">
+    <summary>Driving side</summary>
+    <div class="body">
+      <p><b>Drives on the LEFT</b> (the 24 covered countries in this game) <span class="tag sure">solid</span>: United Kingdom, Ireland, Malta, Japan, Australia, New Zealand, India, Sri Lanka, Bangladesh, Nepal, Bhutan, Thailand, Malaysia, Singapore, Indonesia, Hong Kong, Macao, South Africa, Lesotho, Eswatini, Botswana, Kenya, Uganda, Bermuda.</p>
+      <p><b>Everything else drives on the RIGHT</b>: all of continental Europe (incl. Faroe, Greenland, Iceland), the Americas (incl. Puerto Rico, Curaçao), Russia and Central Asia, the Middle East, Turkey, Taiwan, South Korea, Vietnam, Cambodia, Laos, Mongolia, Philippines, Ghana, Nigeria, Senegal, Rwanda, Tunisia, Egypt, Madagascar, Guam, N. Marianas, American Samoa.</p>
+      <p class="note">Tip: if no car is visible, use road markings (centre line vs. edge) and which side the arrows/bollards with red reflectors face; or the position of the Google car over the lane.</p>
+      <img class="map" src="clues/driving-side.jpg" alt="Left/right driving map" loading="lazy" />
+    </div>
+  </details>
+
+  <details id="scripts">
+    <summary>Scripts: which alphabet is on the sign?</summary>
+    <div class="body">
+      <table>
+        <tr><th>Looks like</th><th>Script</th><th>Covered countries</th></tr>
+        <tr><td class="script">Привет Київ Москва</td><td>Cyrillic</td><td>Russia, Ukraine, Bulgaria, Serbia (also Latin), North Macedonia, Montenegro (mostly Latin), Mongolia, Kazakhstan, Kyrgyzstan. <b>Ukraine</b>: letters <b>і, ї, є, ґ</b>. <b>Russia</b>: <b>ы, э, ъ</b>, no і. <b>Bulgaria</b>: <b>ъ</b> common, no ы/э. <b>Serbia/N. Macedonia</b>: <b>ј, љ, њ, ћ, џ</b> (Macedonian also <b>ѓ, ќ, ѕ</b>). <b>Mongolia</b>: <b>ө, ү</b>. <b>Kazakh</b>: <b>ә, ғ, қ, ң, ұ, ү, һ</b>. <b>Kyrgyz</b>: <b>ө, ү, ң</b>.</td></tr>
+        <tr><td class="script">Αθήνα Ελλάδα</td><td>Greek</td><td>Greece only (Cyprus has no coverage).</td></tr>
+        <tr><td class="script">شارع المدينة</td><td>Arabic</td><td>Jordan, UAE, Qatar, Oman, Tunisia (+ French), Egypt (little coverage), Lebanon (+ French/English). Israel has Arabic as the second line under Hebrew.</td></tr>
+        <tr><td class="script">תל אביב</td><td>Hebrew</td><td>Israel only.</td></tr>
+        <tr><td class="script">नई दिल्ली</td><td>Devanagari</td><td>India (Hindi, Marathi), Nepal. Nepali signs often mix English.</td></tr>
+        <tr><td class="script">சென்னை</td><td>Tamil</td><td>Tamil Nadu (India), Sri Lanka (with Sinhala), Singapore/Malaysia (minor).</td></tr>
+        <tr><td class="script">කොළඹ</td><td>Sinhala (round letters)</td><td>Sri Lanka only.</td></tr>
+        <tr><td class="script">ঢাকা কলকাতা</td><td>Bengali</td><td>Bangladesh, West Bengal (India).</td></tr>
+        <tr><td class="script">ಬೆಂಗಳೂರು / హైదరాబాద్ / കൊച്ചി / અમદાવાદ / ਪੰਜਾਬ</td><td>Kannada / Telugu / Malayalam / Gujarati / Gurmukhi</td><td>Indian states: Karnataka / Andhra-Telangana / Kerala / Gujarat / Punjab. Great for pinpointing the state inside India.</td></tr>
+        <tr><td class="script">กรุงเทพ</td><td>Thai (little circles at letter starts)</td><td>Thailand.</td></tr>
+        <tr><td class="script">ວຽງຈັນ</td><td>Lao (rounder, like Thai)</td><td>Laos.</td></tr>
+        <tr><td class="script">ភ្នំពេញ</td><td>Khmer (tall, spiky)</td><td>Cambodia.</td></tr>
+        <tr><td class="script">東京 大阪 / 台北 / 香港</td><td>Chinese characters</td><td>Japan (with kana), Taiwan, Hong Kong, Macao, some Singapore/Malaysia. <b>Japan</b>: hiragana/katakana (ひらがな カタカナ) present. <b>Taiwan/HK</b>: traditional characters only, no kana, no hangul.</td></tr>
+        <tr><td class="script">서울 부산</td><td>Hangul (circles + straight strokes)</td><td>South Korea only.</td></tr>
+        <tr><td class="script">ཐིམ་ཕུ</td><td>Tibetan-style (Dzongkha)</td><td>Bhutan.</td></tr>
+        <tr><td class="script">Latin (ABC)</td><td>Latin</td><td>Most of the world: see the next section to pick the language.</td></tr>
+      </table>
+      <img class="map" src="clues/latin-alphabet.jpg" alt="Countries using the Latin alphabet" loading="lazy" />
+    </div>
+  </details>
+
+  <details id="latin">
+    <summary>Which Latin-alphabet language is it? (special letters)</summary>
+    <div class="body">
+      <table>
+        <tr><th>You see</th><th>Language</th><th>Where (covered)</th></tr>
+        <tr><td class="big">ñ, ¿ ¡, "ll"</td><td>Spanish</td><td>Spain, Mexico, Argentina, Chile, Colombia, Peru, Ecuador, Bolivia, Uruguay, Guatemala, Dominican Rep., Puerto Rico, Panama, Costa Rica.</td></tr>
+        <tr><td class="big">ã, õ, ç + "ção", "nh", "lh"</td><td>Portuguese</td><td>Portugal, Brazil. Brazil: "Rua", "Av.", prices "R$"; Portugal: "Rua", "Largo", "€".</td></tr>
+        <tr><td class="big">é è ê à ç œ, "Rue", "Route de"</td><td>French</td><td>France, Belgium (south), Switzerland (west), Luxembourg, Quebec (Canada), Tunisia, Senegal, Lebanon, Monaco, Andorra (with Catalan).</td></tr>
+        <tr><td class="big">ß, ä ö ü, long compound words, "Straße"</td><td>German</td><td>Germany, Austria, Switzerland (north/east), Luxembourg, Liechtenstein, Belgium (small east).</td></tr>
+        <tr><td class="big">ij, aa/ee/oo, "straat", "weg"</td><td>Dutch</td><td>Netherlands, Belgium (north, "Flanders"), Curaçao. South Africa: Afrikaans ("straat", "weg", "Kaap").</td></tr>
+        <tr><td class="big">"Via", "Piazza", double consonants (zz, tt)</td><td>Italian</td><td>Italy, Switzerland (Ticino), San Marino, Malta (Maltese "Triq" = street).</td></tr>
+        <tr><td class="big">ą ę ł ń ó ś ź ż, "sz", "cz", "rz"</td><td>Polish</td><td>Poland.</td></tr>
+        <tr><td class="big">ř ě ů ď ť ň</td><td>Czech</td><td>Czechia.</td></tr>
+        <tr><td class="big">ľ ĺ ŕ ô ä</td><td>Slovak</td><td>Slovakia.</td></tr>
+        <tr><td class="big">ő ű, "sz", "gy", "ny", "utca"</td><td>Hungarian</td><td>Hungary (plus Hungarian minority signs in Romania/Slovakia).</td></tr>
+        <tr><td class="big">ă â î ș ț, "strada", "-ului"</td><td>Romanian</td><td>Romania (and Moldova, no coverage).</td></tr>
+        <tr><td class="big">č ć đ š ž, "ulica"</td><td>Croatian / Bosnian / Serbian (Latin) / Slovene</td><td>Croatia, Bosnia, Serbia, Montenegro, Slovenia. Slovene has no ć/đ and uses "cesta", "ulica".</td></tr>
+        <tr><td class="big">ç ğ ı İ ş ü ö, "sokak", "caddesi"</td><td>Turkish</td><td>Turkey.</td></tr>
+        <tr><td class="big">ë, "rruga", lots of q/xh/zh</td><td>Albanian</td><td>Albania (and Kosovo/N. Macedonia minority).</td></tr>
+        <tr><td class="big">ø, å, "gate", "vei"</td><td>Norwegian</td><td>Norway. <b>Danish</b> also has ø/å but "gade", "vej" (Denmark).</td></tr>
+        <tr><td class="big">ä ö å, "gatan", "vägen"</td><td>Swedish</td><td>Sweden (and Finnish coast).</td></tr>
+        <tr><td class="big">ä ö, double vowels/consonants, "-katu", "-tie"</td><td>Finnish</td><td>Finland (often bilingual with Swedish).</td></tr>
+        <tr><td class="big">õ ä ö ü, "tee", "mnt"</td><td>Estonian</td><td>Estonia.</td></tr>
+        <tr><td class="big">ā ē ī ū ķ ļ ņ ģ, "iela"</td><td>Latvian</td><td>Latvia.</td></tr>
+        <tr><td class="big">ą č ę ė į š ų ū ž, "gatvė" (g.)</td><td>Lithuanian</td><td>Lithuania.</td></tr>
+        <tr><td class="big">ð þ æ, "vegur", "gata"</td><td>Icelandic</td><td>Iceland. Faroese also ð, "vegur".</td></tr>
+        <tr><td class="big">w, y, ll, dd, "Heol", bilingual with English</td><td>Welsh</td><td>Wales (UK). Irish Gaelic bilingual signs ("Bóthar", fadas á é í) = Ireland.</td></tr>
+        <tr><td class="big">ă â ê ô ơ ư đ + many tone marks (ấ ờ ệ)</td><td>Vietnamese</td><td>Vietnam.</td></tr>
+        <tr><td class="big">"Jalan" / "Jl.", "Desa", no accents</td><td>Indonesian / Malay</td><td>Indonesia ("Jl.", "Kecamatan"), Malaysia ("Jalan", "Kampung", "Taman"), Singapore, Brunei.</td></tr>
+        <tr><td class="big">"Barangay", "Brgy", "Sitio", "ng", "mga"</td><td>Filipino (Tagalog)</td><td>Philippines (lots of English too).</td></tr>
+        <tr><td class="big">"Barabara", "Mtaa", "Duka", "Hoteli"</td><td>Swahili</td><td>Kenya, Uganda (with English), Rwanda (Kinyarwanda: "umu-", "aba-").</td></tr>
+        <tr><td class="big">English only, "St", "Rd", "Ave"</td><td>English</td><td>USA, Canada, UK, Ireland, Australia, NZ, South Africa, Ghana, Nigeria, Kenya/Uganda, India (mixed), Philippines, Singapore, Malta, Guam.</td></tr>
+        <tr><td class="big">"Carrer", "Avinguda", "Plaça"</td><td>Catalan</td><td>Catalonia, Valencia, Balearic Islands (Spain), Andorra.</td></tr>
+        <tr><td class="big">"Rúa", "Praza"</td><td>Galician</td><td>Galicia (NW Spain; your home region on the map).</td></tr>
+        <tr><td class="big">"Kalea", tx, tz, k everywhere</td><td>Basque</td><td>Basque Country (Spain) and SW France.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details id="words">
+    <summary>Sign words: STOP, street, exit, town names</summary>
+    <div class="body">
+      <table>
+        <tr><th>Stop sign says</th><th>Country</th></tr>
+        <tr><td>STOP</td><td>Almost everywhere in Europe, Australia, NZ, UK, Spain, Portugal, Italy, Germany, Nordics, Russia (also СТОП), Turkey uses <b>DUR</b>, Israel uses a hand symbol.</td></tr>
+        <tr><td>ALTO</td><td>Mexico, Guatemala, Panama, Costa Rica (Central America).</td></tr>
+        <tr><td>PARE</td><td>Argentina, Chile, Peru, Colombia, Ecuador, Bolivia, Uruguay, Dominican Republic, Puerto Rico, Brazil (PARE in Portuguese too).</td></tr>
+        <tr><td>ARRÊT</td><td>Quebec (Canada). France itself uses STOP.</td></tr>
+        <tr><td>止まれ</td><td>Japan (red inverted triangle, not octagon).</td></tr>
+        <tr><td>정지</td><td>South Korea.</td></tr>
+        <tr><td>停</td><td>Taiwan / Hong Kong.</td></tr>
+        <tr><td>หยุด</td><td>Thailand.</td></tr>
+        <tr><td>BERHENTI</td><td>Malaysia (Indonesia uses STOP).</td></tr>
+        <tr><td>قف</td><td>Arabic countries (with STOP).</td></tr>
+        <tr><td>STOP in red octagon with white border, plus "Stop" in Devanagari</td><td>India (often "रुकिए"/"STOP").</td></tr>
+      </table>
+      <table>
+        <tr><th>"Street"</th><th>Language / country</th></tr>
+        <tr><td>Calle, Avenida (Av.), Carretera, Camino</td><td>Spanish</td></tr>
+        <tr><td>Rua, Avenida, Estrada, Travessa</td><td>Portuguese</td></tr>
+        <tr><td>Rue, Avenue, Chemin, Route (D 123 = French departmental road)</td><td>French</td></tr>
+        <tr><td>Straße (Str.), Weg, Gasse, Platz</td><td>German</td></tr>
+        <tr><td>Via, Viale, Corso, Piazza, Strada Provinciale (SP)</td><td>Italian</td></tr>
+        <tr><td>Straat, Laan, Weg, Plein</td><td>Dutch</td></tr>
+        <tr><td>ulica (ul.), aleja (al.), plac</td><td>Polish</td></tr>
+        <tr><td>ulice, náměstí, třída</td><td>Czech</td></tr>
+        <tr><td>utca (u.), út, tér</td><td>Hungarian</td></tr>
+        <tr><td>strada (str.), bulevardul (bd.), calea</td><td>Romanian</td></tr>
+        <tr><td>улица (ул.), проспект, шоссе</td><td>Russian; Ukrainian uses вулиця (вул.), проспект</td></tr>
+        <tr><td>οδός, λεωφόρος</td><td>Greek</td></tr>
+        <tr><td>Sokak (Sk.), Caddesi (Cd.), Bulvarı</td><td>Turkish</td></tr>
+        <tr><td>gate, vei (Norway); gade, vej (Denmark); gatan, vägen (Sweden); katu, tie (Finland)</td><td>Nordics</td></tr>
+        <tr><td>Jalan (Jl./Jln.), Lorong, Taman</td><td>Indonesia / Malaysia</td></tr>
+        <tr><td>Đường, Phố, Quốc lộ (QL = national road)</td><td>Vietnam</td></tr>
+        <tr><td>ถนน (Thanon), ซอย (Soi)</td><td>Thailand</td></tr>
+        <tr><td>Road, Street, Nagar, Marg, Colony, Chowk</td><td>India</td></tr>
+      </table>
+      <p class="note">Exit / motorway words: Spain "Salida", France "Sortie", Germany "Ausfahrt", Italy "Uscita", Portugal "Saída", Belgium (Flanders) "Uit", Netherlands "Afrit" (often just a number), Poland "Zjazd", Turkey "Çıkış", Russia "Выезд", Sweden "Avfart", Norway "Avkjøring", Brazil "Saída", Mexico "Salida". Town-sign colour: Spain white with black text and blue road signs, France white with red border (town entry), Germany yellow, Italy white/black, Poland green/white, Czech white, Austria blue, Netherlands blue, Belgium white, Portugal white, Hungary white, Romania white, Croatia yellow, Norway/Sweden yellow (and blue), Finland white, UK white/black, Ireland white/green, Russia white/blue, Ukraine white/blue, Turkey blue/white.</p>
+    </div>
+  </details>
+
+  <details id="roads">
+    <summary>Roads, lines and signs</summary>
+    <div class="body">
+      <table>
+        <tr><th>Clue</th><th>Points to</th></tr>
+        <tr><td><b>Double yellow centre line</b>, white edge lines <span class="tag sure">solid</span></td><td>USA, Canada, Mexico, Brazil (yellow centre), Argentina, Chile ≈ (mostly white), Colombia, Peru, Ecuador, Bolivia, Central America, Philippines (often), Thailand (yellow centre common), Indonesia (yellow medians on national roads), Malaysia (some), South Korea (yellow centre on 2-way roads), Japan (yellow = no overtaking), Taiwan (yellow centre), Norway (yellow centre, white edges), Finland (older yellow centre, newer white).</td></tr>
+        <tr><td><b>All white lines</b> <span class="tag sure">solid</span></td><td>Most of Europe (Spain, Portugal, France, Germany, Italy, Benelux, Poland, Czechia, Slovakia, Hungary, Romania, Balkans, Baltics, Sweden, Denmark), Russia, Ukraine, Turkey, Australia, NZ, India (mostly), Chile ≈, Mongolia.</td></tr>
+        <tr><td><b>Yellow edge lines</b> (centre white) <span class="tag sure">solid</span></td><td>South Africa, Botswana, Lesotho, Eswatini, Kenya, Israel, UAE; Jordan ≈, Oman ≈. Ireland: dashed yellow edge lines. Switzerland: white lines but yellow bus/taxi lanes and yellow zebra crossings.</td></tr>
+        <tr><td><b>Yellow diamond warning signs</b> <span class="tag sure">solid</span></td><td>USA, Canada, Mexico, Central &amp; South America (Brazil, Argentina, Chile, Colombia, Peru, Ecuador, Bolivia, Uruguay, Guatemala, DR, Puerto Rico), Australia, NZ, Japan, Thailand, Malaysia, Indonesia, Philippines, Ireland (the only European country with yellow diamonds).</td></tr>
+        <tr><td><b>Red-bordered triangle warning signs</b> <span class="tag sure">solid</span></td><td>Europe (white inside; Sweden/Finland/Greece/Iceland/Poland yellow inside), Russia, Turkey, India, South Africa, Kenya, Israel, Jordan, South Korea, Vietnam, Sri Lanka, Bangladesh. Taiwan and Cambodia ≈ mixed shapes.</td></tr>
+        <tr><td>Speed limits in <b>mph</b></td><td>USA, UK (round sign, white with red border), Puerto Rico, Guam, N. Marianas, American Samoa. (Bermuda drives left with UK-style signs but uses km/h, limit 35.)</td></tr>
+        <tr><td>Green motorway / highway signs</td><td>USA, Canada, Mexico, Brazil, Chile, Australia, NZ, Japan, Philippines, Italy (motorway green, other roads blue), Switzerland, Czechia, Slovakia, Hungary, Poland, Croatia, Slovenia, Serbia, Romania, Bulgaria, Greece, Turkey, Denmark, Sweden, Finland, Russia (green motorway, blue elsewhere) ≈ for the last six.</td></tr>
+        <tr><td>Blue motorway signs</td><td>Spain, Portugal, France (green for main non-motorway routes), Germany, Austria, Netherlands, Belgium, Luxembourg, UK, Ireland (green for national roads), Norway ≈, Ukraine ≈.</td></tr>
+        <tr><td>Chevron curve boards <span class="tag approx">≈</span></td><td>Black on yellow: USA, Canada, Australia, NZ, Mexico. Red/white: Germany, Poland, Czechia, Slovakia, Hungary, Croatia. White on blue: France, Spain ≈, Portugal ≈. White on black: UK. Yellow/black: Ireland.</td></tr>
+        <tr><td>Km markers on the roadside</td><td>Brazil: white km boards with road number (BR-xxx) ≈. Spain: white plaques with road number (N-, A-, two-letter province codes). France: small white stones with red/yellow top (D roads yellow top, N roads red top). Italy: white stone "km". Russia: blue km boards. Thailand: white concrete km posts with Thai numerals. Malaysia: black/white km posts. Argentina: white km stones.</td></tr>
+        <tr><td>Road number prefixes on signs</td><td>Spain A-/AP- (motorway), N- (national), plus two-letter province roads (e.g. CL-, GR-, PO-); France A, N, D (D = department); Germany A, B, L/K; Italy A, SS, SP; Poland A, S, DK, DW; UK M, A, B; Ireland M, N, R; Brazil BR-; Mexico MEX; USA Interstate shield, US route shield, state route; Australia M/A/B/C; India NH (national highway), SH; Russia M-, R-, A-; Turkey D-/O-; Thailand numbered shields; Philippines "N" numbers; Chile "Ruta 5"; Argentina RN/RP.</td></tr>
+        <tr><td>Pedestrian crossing style</td><td>Zebra white everywhere; Switzerland yellow; Taiwan/Japan white; Russia white with yellow stripes between (yellow/white zebra) <span class="tag meta">meta</span>; Ukraine similar; Czech/Slovakia white; UK zebra with black/white striped poles and orange globes (Belisha beacons).</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details id="bollards">
+    <summary>Bollards (roadside posts) <span class="tag meta">meta</span></summary>
+    <div class="body">
+      <p class="note">Bollards are the strongest Europe tell once you know them. Descriptions from the GeoGuessr community; verify with your own screenshots over time.</p>
+      <table>
+        <tr><th>Country</th><th>Bollard</th></tr>
+        <tr><td>Spain</td><td>Slim white post, slightly split/hollow-looking top, <b>yellow</b> reflector (often numbered).</td></tr>
+        <tr><td>Portugal</td><td>Thin white post, narrower at the top, with a small rectangular reflector ≈.</td></tr>
+        <tr><td>France</td><td>White rounded post with a <b>red band/reflector near the top</b> that wraps around.</td></tr>
+        <tr><td>Italy</td><td>White post with a <b>black top</b>, red stripe inside the black top, reflector set into the post. Albania uses the same design.</td></tr>
+        <tr><td>Germany</td><td>Thick flat-profile white post, black band around a long vertical reflector, two screws (Luxembourg: same with three screws).</td></tr>
+        <tr><td>Austria</td><td>Black top, dark red/purple reflector mounted <i>outside</i> the post, sometimes a nub on top. Slovenia and Montenegro: black top with external red reflector too.</td></tr>
+        <tr><td>Switzerland</td><td>White post with black band and reflector, similar to Germany/Austria family.</td></tr>
+        <tr><td>Czechia / Slovakia</td><td>White post with black cap and a split rectangular reflector; square reflector on the back.</td></tr>
+        <tr><td>Hungary</td><td>Like Germany but red reflector, rounder/flatter top, thinner.</td></tr>
+        <tr><td>Poland</td><td>White post with a <b>red vertical stripe on one side only</b>.</td></tr>
+        <tr><td>Croatia</td><td>Black top with red reflector.</td></tr>
+        <tr><td>Greece</td><td>White post with a black diagonal stripe near the top ≈.</td></tr>
+        <tr><td>Denmark</td><td>White post with a red middle band and white reflector inside the band.</td></tr>
+        <tr><td>Finland / Estonia</td><td>White posts with a black band and reflector (Estonia often two bands) ≈.</td></tr>
+        <tr><td>Sweden</td><td>Black-and-white, often wedge-shaped, grey reflector (orange at junctions).</td></tr>
+        <tr><td>Norway</td><td>Slim white post with one rectangular reflector; orange flexible snow stakes in winter.</td></tr>
+        <tr><td>Latvia / Lithuania</td><td>Red-topped white post (Lithuania: orange/yellow reflector).</td></tr>
+        <tr><td>UK</td><td>Alternating black and white bands on a thin flexible post; red reflector left, white right. Ireland: similar black/white with yellow.</td></tr>
+        <tr><td>Russia / Ukraine</td><td>Black-and-white "barber pole" striped posts (Ukraine shorter/squatter).</td></tr>
+        <tr><td>Romania</td><td>White plastic with black sloped cap, rounded.</td></tr>
+        <tr><td>Japan</td><td>Rare; delineators vary (white/red or yellow/black) ≈. Better Japan tells: white guardrails, concrete poles, kei cars.</td></tr>
+        <tr><td>South Korea</td><td>Yellow flexible posts in cities; rural posts with round yellow/white reflectors.</td></tr>
+        <tr><td>Thailand</td><td>Square concrete posts, white base with black top or stripes.</td></tr>
+        <tr><td>Malaysia</td><td>White post divided into five sections, sometimes a red reflector.</td></tr>
+        <tr><td>Indonesia</td><td>Yellow and black stripes with a red rectangle near the top.</td></tr>
+        <tr><td>Cambodia</td><td>Red pyramid top, red/white alternating pattern.</td></tr>
+        <tr><td>Mongolia</td><td>Bowling-pin shape, white with two red bands.</td></tr>
+        <tr><td>Sri Lanka</td><td>Chunky black base with white km marker.</td></tr>
+        <tr><td>Australia</td><td>White flat post; red reflector on the left, white on the right. NZ: white post with a red band wrapping around.</td></tr>
+        <tr><td>Americas</td><td>USA/Canada: rarely bollards, instead reflector tabs on guardrails and thin flexible delineators. Mexico: white concrete posts, some yellow tops. Peru: concrete, yellow top/white bottom. Colombia: white rectangular bollards on guardrails. Ecuador: round white/red striped posts. Uruguay: square white. Brazil: none standard (look for blue km markers).</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details id="plates">
+    <summary>Licence plates (blurred, but colour and shape survive)</summary>
+    <div class="body">
+      <table>
+        <tr><th>Plate look</th><th>Country</th></tr>
+        <tr><td><b>Yellow</b> front and rear <span class="tag sure">solid</span></td><td>Netherlands, Luxembourg, Israel (yellow with blue strip), Colombia (yellow), Laos ≈.</td></tr>
+        <tr><td><b>Yellow rear, white front</b> <span class="tag sure">solid</span></td><td>UK, Hong Kong, Sri Lanka, Kenya ≈, Gibraltar.</td></tr>
+        <tr><td><b>Black with white text</b> <span class="tag sure">solid</span></td><td>Malaysia, Indonesia (older private plates black; since 2022 new plates are white; yellow = commercial), Singapore (black or white), Macao, older Argentina (black, white text; new Mercosur plates white).</td></tr>
+        <tr><td>White with <b>blue EU strip</b> on the left</td><td>EU countries. Italy also has a blue strip on the right. Belgium: <b>red</b> characters. Portugal: older plates have a yellow strip on the right. Ireland: county name in Irish on top.</td></tr>
+        <tr><td>White with blue/yellow strip</td><td>Ukraine (flag strip). Russia: white with small flag, region number. Kazakhstan: white with blue strip. Turkey: white with blue strip "TR".</td></tr>
+        <tr><td>Long white plate, often two-line on trucks</td><td>Russia, Ukraine, Mongolia (white), Kyrgyzstan.</td></tr>
+        <tr><td>White with <b>green text</b> ≈ / mixed colours</td><td>Japan: white (private), <b>yellow</b> (kei cars, very common), green (commercial). South Korea: white (newer), green (older), yellow (taxis).</td></tr>
+        <tr><td>Short, wide plates with state designs</td><td>USA (hugely varied, one plate often only at the rear in many states), Canada (province plates), Mexico (state plates), Australia (state colours: NSW yellow, QLD maroon/white, VIC white-blue, WA blue-white ≈).</td></tr>
+        <tr><td>Mercosur white with blue strip and country flag</td><td>Brazil (also grey older plates), Argentina (also black older), Uruguay, Paraguay (no coverage).</td></tr>
+        <tr><td>Yellow commercial, white private</td><td>India (white private, yellow taxis/trucks, green EVs), Thailand (white private, yellow taxis/trucks), Vietnam (white, yellow commercial since 2020), Philippines (white; older plates green text ≈).</td></tr>
+        <tr><td>White with red/blue province codes</td><td>South Africa (varies by province: GP, WC, KZN on the plate), Botswana (white, B prefix), Kenya (K.. letters).</td></tr>
+        <tr><td>Chile</td><td>White plates, "BB·BB·12" style; Peru white; Ecuador white (orange = taxi); Bolivia white with blue ≈.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details id="poles">
+    <summary>Utility poles, guardrails, street furniture <span class="tag meta">meta</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Japan</b>: grey concrete poles with yellow/black bands at the base, lots of overhead cables, small white street-name plates, vending machines, blue address plates.</li>
+        <li><b>Poland</b>: concrete poles with "ladder" holes; <b>Hungary</b>: concrete poles, often angled/split at the top; <b>Romania</b>: concrete, round, many with a small "H" shape top.</li>
+        <li><b>Russia/Ukraine</b>: concrete poles with holes and a diagonal brace; wooden poles with concrete base in villages; blue-green fences; "lada" cars.</li>
+        <li><b>Brazil</b>: round concrete poles with two vertical lines of holes; red-brown soil; black/yellow kerbs ≈.</li>
+        <li><b>Argentina/Chile/Uruguay</b>: wooden poles common in Argentina; Chile concrete square.</li>
+        <li><b>Mexico</b>: concrete poles, hand-painted shop ads, "Coca-Cola" red shop boards, flat roofs with water tanks (tinacos).</li>
+        <li><b>Thailand</b>: square concrete poles with holes; blue/white kerbs ≈; spirit houses; "7-Eleven" everywhere.</li>
+        <li><b>Indonesia</b>: concrete poles with horizontal dashes (PLN), huge motorbike numbers, red-white kerbs.</li>
+        <li><b>Philippines</b>: wooden or concrete poles, jeepneys, tricycles, "Sari-sari store" signs, yellow/black kerbs.</li>
+        <li><b>Malaysia</b>: concrete poles, black/white kerbs, many Protons/Peroduas.</li>
+        <li><b>India</b>: concrete poles, black/white kerbs, auto-rickshaws, lorries painted with "HORN OK PLEASE".</li>
+        <li><b>Kenya/Uganda</b>: wooden poles, red soil, boda-boda motorbikes; Kenya Safaricom green shop paint; Uganda yellow MTN paint.</li>
+        <li><b>South Africa</b>: wooden/concrete poles, walls with electric fencing, "Hyundai/Toyota bakkies" (pickups), yellow edge lines.</li>
+        <li><b>USA</b>: wooden poles with transformers, wide roads, mailboxes at the roadside, yellow school buses, fire hydrants; <b>Canada</b> same but more French in Quebec and "Tim Hortons".</li>
+        <li><b>Australia</b>: wooden poles, red earth outback, "Give Way" signs, white posts with red reflector; <b>NZ</b>: wooden poles, green hills, sheep, "Give Way" and bilingual Māori names (Whanga-, -tāne).</li>
+        <li><b>Guardrails</b>: USA/Canada W-beam with wooden posts; Japan white rails; Korea; Europe grey steel; Austria/Switzerland often with a pipe rail; Scandinavia wire rope rails.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="camera">
+    <summary>Google car and camera meta <span class="tag meta">meta</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Kenya</b>: a black <b>snorkel</b> (tube) visible at the front-right of the car.</li>
+        <li><b>Ghana</b>: black tape or a roof rack visible; Senegal: ≈ car with roof rack; Nigeria: a police escort car often follows in rural coverage.</li>
+        <li><b>Uganda</b>: white car with a roof rack bar; <b>Mongolia</b>: ≈ old low-quality "gen 2" look in parts.</li>
+        <li><b>Sri Lanka / Bangladesh / Cambodia</b>: ≈ often a roof rack or the car's bars visible.</li>
+        <li><b>Montenegro, Albania, Bermuda</b> ≈: parts of the car visible in older coverage.</li>
+        <li><b>Low-resolution, blurry, halo around the sun</b> ("gen 2") = older coverage: parts of Australia, Brazil, Mexico, Russia, Chile, South Africa, Japan ≈.</li>
+        <li><b>Very sharp, bright, HDR look</b> ("gen 4") = recent coverage: much of Europe, USA, Japan, India, Indonesia, Nigeria ≈.</li>
+        <li><b>Trekker (walking backpack camera)</b>: narrow paths, stairs, hiking trails, inside bazaars: often Bhutan, Nepal, Faroe, Taiwan hiking, national parks.</li>
+        <li>Look at the <b>shadow of the car</b> on the road: shape, length and side tell you camera generation and sun direction.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="nature">
+    <summary>Landscape, climate and the sun</summary>
+    <div class="body">
+      <ul>
+        <li><b>Sun position</b> <span class="tag sure">solid</span>: in the northern hemisphere the midday sun is in the <b>south</b> (shadows point north); in the southern hemisphere it is in the <b>north</b>. Near the equator it is overhead. Use the compass in the game: find the sun, read the direction, decide hemisphere. Long shadows + low sun = high latitude or early/late day.</li>
+        <li><b>Eucalyptus</b> (grey-green, peeling bark): Australia; also planted in Spain/Portugal (Galicia!), Brazil, South Africa, Kenya, India, Ethiopia, California.</li>
+        <li><b>Birch + pine + lakes</b>: Finland, Sweden, Russia, Baltics, Canada. <b>Spruce/fir + mountains</b>: Norway, Alps, Canada. <b>Rolling green + hedges + stone walls</b>: UK, Ireland, Normandy.</li>
+        <li><b>Palm trees + humid</b>: SE Asia, Brazil coast, Caribbean, Florida, Kerala/Sri Lanka. <b>Coconut + rice paddies</b>: Indonesia, Philippines, Thailand, Vietnam, Sri Lanka, Kerala, Bangladesh.</li>
+        <li><b>Red soil</b>: Brazil interior, Kenya/Uganda, Australia outback, Ghana/Nigeria, southern India. <b>Olive trees + dry hills + terraces</b>: Spain, Italy, Greece, Portugal, Tunisia, Israel, Jordan. <b>Vineyards</b>: France, Italy, Spain, Portugal, Chile, Argentina (Mendoza), South Africa, Australia.</li>
+        <li><b>Cactus + desert</b>: Mexico, SW USA, Peru coast, Chile north (Atacama, no plants at all), Israel/Jordan, UAE/Oman/Qatar (sand, modern roads, SUVs).</li>
+        <li><b>Steppe, treeless, yurts</b>: Mongolia, Kazakhstan, Kyrgyzstan (with big mountains). <b>Tundra/fjords</b>: Norway, Iceland (no trees, black lava, moss), Faroe.</li>
+        <li><b>Snow + concrete poles + Ladas</b>: Russia; <b>snow + wooden red houses</b>: Sweden/Norway/Finland.</li>
+        <li><b>Houses</b>: red tile roofs = Mediterranean/Balkans/Latin America; black slate roofs = Galicia/N. Portugal/N. Spain; wooden painted houses = Nordics/Russia/Canada; concrete flat roofs with rebar sticking out = Mexico, Middle East, India, Africa; corrugated iron = Africa, SE Asia, Australia (red/green tin roofs), NZ.</li>
+        <li><b>Skies</b>: the camera generation changes sky colour more than the real sky does; do not over-read it.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="cards">
+    <summary>Country quick cards (the 60 you will meet most)</summary>
+    <div class="body">
+      <p class="note">Each card: driving side · language/script · road and sign tells · nature · the "one thing" to remember. All countries listed here have Street View coverage.</p>
+      <div class="cards">
+        <div class="card"><h4>Spain</h4><p>Right · Spanish (ñ), plus Catalan/Galician/Basque signs · white lines, blue road signs, yellow-reflector bollards, "Salida", roads N-/A-/two-letter province codes · dry centre, green north (Galicia: eucalyptus + slate roofs + "Rúa") · hollow-top bollards.</p></div>
+        <div class="card"><h4>Portugal</h4><p>Right · Portuguese (ã, ç) · "Rua", white lines, blue motorway signs, azulejo street tiles, obelisk bollards with red reflector · cobbled pavements (calçada), eucalyptus + pine · older plates with yellow right strip.</p></div>
+        <div class="card"><h4>France</h4><p>Right · French · red-bordered town-entry signs, D-road yellow-topped km stones, white bollards with red band, "Rue de …" blue plaques · shutters on windows, plane trees along roads · "Sortie".</p></div>
+        <div class="card"><h4>Italy</h4><p>Right · Italian · "Via", blue (SS/SP) and green (A) signs, black-topped bollards with red stripe, white km stones, plates with blue strips both sides · Fiat Pandas, stone villages, cypress · "Uscita".</p></div>
+        <div class="card"><h4>Germany</h4><p>Right · German (ß) · yellow town signs, thick white bollards with black band, grey guardrails, "Ausfahrt", Autobahn blue · tidy villages, bike lanes · lots of VW/BMW.</p></div>
+        <div class="card"><h4>Netherlands</h4><p>Right · Dutch (ij) · <b>yellow plates</b>, flat land, red cycle paths everywhere, green/white striped junction posts, blue signs · brick houses, canals.</p></div>
+        <div class="card"><h4>Belgium</h4><p>Right · Dutch (north) / French (south) · plates with <b>red</b> text, white town signs, concrete roads with seams · brick houses, grey skies.</p></div>
+        <div class="card"><h4>United Kingdom</h4><p><b>Left</b> · English (Welsh in Wales, Gaelic in Scotland) · yellow rear plates, mph, black/white banded bollards, zebra crossings with Belisha beacons, hedges and stone walls · red post boxes.</p></div>
+        <div class="card"><h4>Ireland</h4><p><b>Left</b> · English + Irish bilingual signs · <b>yellow diamond</b> warning signs (unique in Europe), dashed yellow edge lines, km/h, green road signs, plates with county names · very green, stone walls, bungalows.</p></div>
+        <div class="card"><h4>Poland</h4><p>Right · Polish (ł ż ś) · green town signs, concrete "ladder" poles, bollards with red stripe on one side, "ul." · flat farmland, brick churches.</p></div>
+        <div class="card"><h4>Czechia / Slovakia</h4><p>Right · ř/ě/ů (CZ), ľ/ô (SK) · black-capped bollards, white town signs with black text (CZ), blue road numbers · forests, pastel village houses · Škodas (CZ).</p></div>
+        <div class="card"><h4>Hungary</h4><p>Right · Hungarian (ő ű, "utca") · white town signs, concrete poles, green motorway signs, flat plains (puszta) · "Tér", "Út".</p></div>
+        <div class="card"><h4>Romania</h4><p>Right · Romanian (ă ș ț) · "strada", concrete round poles, horse carts, stray dogs, Dacia cars, orthodox churches · Carpathians.</p></div>
+        <div class="card"><h4>Croatia / Slovenia / Serbia / Bosnia / Montenegro / N. Macedonia / Albania / Bulgaria</h4><p>Right · č ć š ž (Latin) or Cyrillic (Serbia, N. Macedonia, Bulgaria, Montenegro) · Croatia: yellow town signs, red-roofed coast; Slovenia: alpine, very tidy; Serbia: Cyrillic + Latin mixed; Bulgaria: Cyrillic, yellow-inside warning triangles ≈; Albania: "rruga", Mercedes everywhere; N. Macedonia: Cyrillic with ќ ѓ.</p></div>
+        <div class="card"><h4>Greece</h4><p>Right · Greek script (Latin transliteration below) · yellow-inside warning triangles, diagonal-stripe bollards, olive trees, white houses, blue signs · "οδός".</p></div>
+        <div class="card"><h4>Turkey</h4><p>Right · Turkish (ğ ş ı) · "DUR" stop sign, blue road signs, white lines, "Sokak/Caddesi", red flags, mosques, white km stones · plates white with "TR" blue strip.</p></div>
+        <div class="card"><h4>Russia</h4><p>Right · Cyrillic (ы, э) · blue road signs, concrete poles with holes, Ladas, barber-pole bollards, wooden houses with carved windows, birch forests · huge: use region codes on plates (last 2-3 digits) and climate.</p></div>
+        <div class="card"><h4>Ukraine</h4><p>Right · Cyrillic with і ї є · plates with blue/yellow strip, "вул.", white/blue signs, often older blurry coverage · black soil fields, sunflowers.</p></div>
+        <div class="card"><h4>Nordics</h4><p>Right · Norway: yellow centre lines, ø/å, fjords, wooden red/white houses, tunnels. Sweden: all-white lines, ä/ö, wedge bollards, yellow/blue signs. Finland: ä/ö, double letters, two-band bollards, lakes and birch, older yellow centre lines. Denmark: flat, ø/å, "vej", red brick, cycle lanes, red-band bollards. Iceland: ð/þ, no trees, lava, gravel roads.</p></div>
+        <div class="card"><h4>Baltics</h4><p>Right · Estonia (õ ä ö ü, Finland-like bollards), Latvia (ā ē ķ ļ, red-top bollards, "iela"), Lithuania (ą č ę ė, red-top bollards, "g.") · flat, forests, wooden houses, Soviet-era blocks.</p></div>
+        <div class="card"><h4>Switzerland / Austria</h4><p>Right · German/French/Italian (CH), German (AT) · CH: yellow pedestrian crossings, white lines, blue signs, very clean; AT: blue town signs, black-top bollards with external reflector, alpine chalets.</p></div>
+        <div class="card"><h4>USA</h4><p>Right · English (Spanish in the south-west) · double yellow centre lines, yellow diamond signs, green highway signs, wooden poles, mailboxes, mph, huge pickups, one-plate states · regions: deserts (AZ/NV/UT), humid pines (SE), palms (FL/CA), corn plains (Midwest), Spanish moss (Deep South).</p></div>
+        <div class="card"><h4>Canada</h4><p>Right · English / French (Quebec: "ARRÊT", "Rue") · yellow centre lines, km/h, green/blue signs, wooden poles, long straight roads, snow · "Tim Hortons".</p></div>
+        <div class="card"><h4>Mexico</h4><p>Right · Spanish · "ALTO" stop, yellow centre lines, concrete poles, painted shop walls, speed bumps ("TOPE"), VW Beetles (old), flat roofs with water tanks · cactus north, jungle south.</p></div>
+        <div class="card"><h4>Brazil</h4><p>Right · Portuguese · "PARE", yellow centre lines, concrete round poles, blue km markers, red soil, Mercosur plates (or grey), VW Gols, "Rua" · huge: sugarcane (SP), pine (south), dry (NE), jungle (N).</p></div>
+        <div class="card"><h4>Argentina</h4><p>Right · Spanish (Italian-looking names) · "PARE", white or yellow lines, wooden poles, flat pampas, plates black (old) or Mercosur white · Renault/Peugeot cars; Patagonia gravel roads.</p></div>
+        <div class="card"><h4>Chile</h4><p>Right · Spanish · "PARE", mostly white lines, Andes always on one side, Atacama desert north, green south · long thin country: use the mountains' side (east).</p></div>
+        <div class="card"><h4>Colombia / Peru / Ecuador / Bolivia</h4><p>Right · Spanish · Colombia: yellow plates, yellow centre lines, green mountains, "PARE"; Peru: white plates, dry coast, Andes, yellow-top bollards; Ecuador: red/white striped bollards, orange taxi plates, volcanoes; Bolivia: high altiplano, cholitas, older coverage.</p></div>
+        <div class="card"><h4>Uruguay / Guatemala / Dominican Rep. / Puerto Rico / Panama / Costa Rica</h4><p>Right · Spanish · Uruguay: white lines, square bollards, flat, "PARE"; Guatemala: "ALTO", volcanoes, chicken buses; DR: "PARE", palm trees, motorbikes; Puerto Rico: US-style signs with Spanish, mph; Panama: "ALTO", humid; Costa Rica: "ALTO", "Pura vida" signs ≈.</p></div>
+        <div class="card"><h4>Japan</h4><p><b>Left</b> · Japanese (kana + kanji) · 止まれ inverted triangle, yellow kei plates, grey concrete poles with cables, white km plates, vending machines, narrow roads · very clean, hills + rice fields.</p></div>
+        <div class="card"><h4>South Korea</h4><p>Right · Hangul · yellow centre lines, green/blue signs, brick apartment blocks, red/blue speed signs, Hyundai/Kia everywhere · 정지.</p></div>
+        <div class="card"><h4>Taiwan</h4><p>Right · Traditional Chinese (no kana, no hangul) · scooters everywhere, yellow centre lines, green road signs with English, betel-nut stands, mountains · 停.</p></div>
+        <div class="card"><h4>Hong Kong / Macao / Singapore</h4><p>HK: <b>left</b>, Chinese + English, yellow rear plates, UK-style signs, skyscrapers. Macao: <b>left</b>, Chinese + Portuguese, black plates. Singapore: <b>left</b>, English + Chinese/Malay/Tamil, very clean, HDB blocks.</p></div>
+        <div class="card"><h4>Thailand</h4><p><b>Left</b> · Thai script · yellow centre lines common, black/white concrete bollards, 7-Eleven, tuk-tuks, pickup trucks, spirit houses, temples · หยุด.</p></div>
+        <div class="card"><h4>Malaysia</h4><p><b>Left</b> · Malay ("Jalan") + English/Chinese/Tamil · <b>black plates</b>, yellow diamond signs, "BERHENTI", Protons, palm oil plantations, mosques · black/white kerbs.</p></div>
+        <div class="card"><h4>Indonesia</h4><p><b>Left</b> · Indonesian ("Jl.") · <b>black plates</b>, yellow/black bollards with red rectangle, millions of motorbikes, red-white kerbs and flags, mosques · Bali: Hindu temples.</p></div>
+        <div class="card"><h4>Philippines</h4><p>Right · Filipino + English ("Barangay") · jeepneys, tricycles, yellow diamonds, white/yellow lines, "Sari-sari" stores, Catholic churches, coconut palms.</p></div>
+        <div class="card"><h4>Vietnam / Cambodia / Laos</h4><p>Right · Vietnam: Latin with heavy tone marks, "Đường", motorbikes, red flags with star, yellow commercial plates; Cambodia: Khmer script, red-pyramid bollards, Angkor-style roofs; Laos: Lao script, yellow plates ≈, Mekong.</p></div>
+        <div class="card"><h4>India</h4><p><b>Left</b> · English + state scripts (Devanagari north, Tamil/Kannada/Telugu/Malayalam south, Bengali east) · yellow commercial plates, "HORN OK PLEASE", auto-rickshaws, black/white kerbs, temples/mosques/churches · coverage mostly cities: Delhi, Mumbai, Bengaluru, Chennai, Hyderabad, Kolkata, Ahmedabad, Pune, Jaipur, Kochi …</p></div>
+        <div class="card"><h4>Sri Lanka / Bangladesh / Nepal / Bhutan</h4><p><b>All left</b> · Sri Lanka: Sinhala + Tamil + English, tuk-tuks, palms, black-base km bollards; Bangladesh: Bengali, rickshaws, floods/rivers, brick; Nepal: Devanagari, mountains, prayer flags; Bhutan: Dzongkha, traditional painted houses, very few cars.</p></div>
+        <div class="card"><h4>Mongolia / Kazakhstan / Kyrgyzstan</h4><p>Right · Cyrillic (ө ү MN; ә ғ қ ң KZ; ө ү ң KG) · Mongolia: treeless steppe, yurts (gers), bowling-pin bollards, Ulaanbaatar; Kazakhstan: flat steppe, white plates with blue strip, Russian too; Kyrgyzstan: huge mountains, Soviet blocks, Ladas.</p></div>
+        <div class="card"><h4>Israel / Jordan / UAE / Qatar / Oman</h4><p>Right · Hebrew+Arabic+English (IL), Arabic+English (others) · Israel: yellow plates, yellow edge lines, hand stop sign; Jordan: yellow edge lines, desert, white/green plates ≈; UAE/Qatar: ultra-modern roads, white SUVs, sand; Oman: mountains + sand, white plates with Arabic.</p></div>
+        <div class="card"><h4>Tunisia / Egypt / Lebanon</h4><p>Right · Arabic + French (TN, LB), Arabic (EG) · Tunisia: white/blue signs in Arabic and French, olive groves; Egypt: only Giza/pyramid area and some roads; Lebanon: Arabic/French/English mix, cedars, mountains.</p></div>
+        <div class="card"><h4>South Africa</h4><p><b>Left</b> · English + Afrikaans + Zulu etc. · <b>yellow edge lines</b>, bakkies (pickups), electric-fence walls, red soil, province codes on plates (GP, WC, KZN, EC …) · wine farms (WC), highveld grass (GP).</p></div>
+        <div class="card"><h4>Botswana / Lesotho / Eswatini</h4><p><b>All left</b> · English + Setswana/Sesotho/Swati · yellow edge lines like SA; Botswana: flat, dry, donkeys, "B" plates; Lesotho: high mountains, blankets, horses; Eswatini: hilly, sugarcane.</p></div>
+        <div class="card"><h4>Kenya / Uganda / Rwanda</h4><p>Kenya and Uganda <b>left</b>, Rwanda <b>right</b> · English + Swahili · Kenya: <b>snorkel</b> on the car, red soil, boda-bodas, green Safaricom paint; Uganda: white car with roof bar, yellow MTN paint, red soil, bananas; Rwanda: very clean, hilly ("land of a thousand hills"), Kinyarwanda, no plastic bags.</p></div>
+        <div class="card"><h4>Ghana / Nigeria / Senegal</h4><p>Right · English (GH, NG), French (SN) · Ghana: black tape/roof rack on car, red soil, "Cocoa" and Twi words; Nigeria: escort car, yellow buses/okadas, Igbo/Yoruba/Hausa signs, very sharp new coverage; Senegal: French + Wolof, baobabs, Dakar, sand.</p></div>
+        <div class="card"><h4>Australia</h4><p><b>Left</b> · English · yellow diamond signs, white lines, red reflector bollards, wooden poles, eucalyptus, red outback earth, "Give Way", state plates, utes · huge: coast cities vs empty interior.</p></div>
+        <div class="card"><h4>New Zealand</h4><p><b>Left</b> · English + Māori place names · green hills, sheep, yellow diamond signs, white plates with black text, wooden poles, volcanic cones (North), fjords (South).</p></div>
+        <div class="card"><h4>Guam / Northern Marianas / American Samoa</h4><p>Right · English (+ Chamorro / Samoan) · US-style signs and mph, tropical, US plates with island designs.</p></div>
+        <div class="card"><h4>Madagascar</h4><p>Right · French + Malagasy · red soil, rice terraces, zebu carts, Renault 4s, baobabs in the west.</p></div>
+        <div class="card"><h4>Small places in this game</h4><p>Bermuda: <b>left</b>, UK-style signs, km/h, pastel houses with white stepped roofs. Greenland: right, colourful wooden houses, no trees, Danish + Greenlandic. Faroe: right, grass roofs, ð/ø, sheep, tunnels. Curaçao: right, Dutch + Papiamentu, pastel Dutch-colonial buildings. Andorra: Catalan, Pyrenees. Monaco / San Marino / Liechtenstein: French / Italian / German, tiny and rich.</p></div>
+      </div>
+    </div>
+  </details>
+
+  <details id="codes">
+    <summary>Phone codes, internet domains, and your maps</summary>
+    <div class="body">
+      <p class="note">Shop boards often show a phone number or a website. The country code (+xx) or domain (.xx) gives the country instantly.</p>
+      <table>
+        <tr><th>Code</th><th>Country</th><th>Code</th><th>Country</th><th>Code</th><th>Country</th></tr>
+        <tr><td>+1</td><td>USA, Canada, Puerto Rico, Dominican Rep. (809/829/849), Guam (671)</td><td>+7</td><td>Russia, Kazakhstan</td><td>+20</td><td>Egypt</td></tr>
+        <tr><td>+27</td><td>South Africa</td><td>+30</td><td>Greece</td><td>+31</td><td>Netherlands</td></tr>
+        <tr><td>+32</td><td>Belgium</td><td>+33</td><td>France</td><td>+34</td><td>Spain</td></tr>
+        <tr><td>+36</td><td>Hungary</td><td>+39</td><td>Italy</td><td>+40</td><td>Romania</td></tr>
+        <tr><td>+41</td><td>Switzerland</td><td>+43</td><td>Austria</td><td>+44</td><td>UK</td></tr>
+        <tr><td>+45</td><td>Denmark</td><td>+46</td><td>Sweden</td><td>+47</td><td>Norway</td></tr>
+        <tr><td>+48</td><td>Poland</td><td>+49</td><td>Germany</td><td>+51</td><td>Peru</td></tr>
+        <tr><td>+52</td><td>Mexico</td><td>+53</td><td>Cuba</td><td>+54</td><td>Argentina</td></tr>
+        <tr><td>+55</td><td>Brazil</td><td>+56</td><td>Chile</td><td>+57</td><td>Colombia</td></tr>
+        <tr><td>+58</td><td>Venezuela</td><td>+60</td><td>Malaysia</td><td>+61</td><td>Australia</td></tr>
+        <tr><td>+62</td><td>Indonesia</td><td>+63</td><td>Philippines</td><td>+64</td><td>New Zealand</td></tr>
+        <tr><td>+65</td><td>Singapore</td><td>+66</td><td>Thailand</td><td>+81</td><td>Japan</td></tr>
+        <tr><td>+82</td><td>South Korea</td><td>+84</td><td>Vietnam</td><td>+86</td><td>China</td></tr>
+        <tr><td>+90</td><td>Turkey</td><td>+91</td><td>India</td><td>+92</td><td>Pakistan</td></tr>
+        <tr><td>+94</td><td>Sri Lanka</td><td>+880</td><td>Bangladesh</td><td>+977</td><td>Nepal</td></tr>
+        <tr><td>+351</td><td>Portugal</td><td>+352</td><td>Luxembourg</td><td>+353</td><td>Ireland</td></tr>
+        <tr><td>+354</td><td>Iceland</td><td>+355</td><td>Albania</td><td>+356</td><td>Malta</td></tr>
+        <tr><td>+358</td><td>Finland</td><td>+359</td><td>Bulgaria</td><td>+370/371/372</td><td>Lithuania / Latvia / Estonia</td></tr>
+        <tr><td>+380</td><td>Ukraine</td><td>+381</td><td>Serbia</td><td>+385</td><td>Croatia</td></tr>
+        <tr><td>+386</td><td>Slovenia</td><td>+387</td><td>Bosnia</td><td>+389</td><td>N. Macedonia</td></tr>
+        <tr><td>+420</td><td>Czechia</td><td>+421</td><td>Slovakia</td><td>+593</td><td>Ecuador</td></tr>
+        <tr><td>+591</td><td>Bolivia</td><td>+598</td><td>Uruguay</td><td>+502</td><td>Guatemala</td></tr>
+        <tr><td>+507</td><td>Panama</td><td>+506</td><td>Costa Rica</td><td>+852 / +853 / +886</td><td>Hong Kong / Macao / Taiwan</td></tr>
+        <tr><td>+855</td><td>Cambodia</td><td>+856</td><td>Laos</td><td>+976</td><td>Mongolia</td></tr>
+        <tr><td>+971</td><td>UAE</td><td>+974</td><td>Qatar</td><td>+968</td><td>Oman</td></tr>
+        <tr><td>+962</td><td>Jordan</td><td>+972</td><td>Israel</td><td>+961</td><td>Lebanon</td></tr>
+        <tr><td>+216</td><td>Tunisia</td><td>+221</td><td>Senegal</td><td>+233</td><td>Ghana</td></tr>
+        <tr><td>+234</td><td>Nigeria</td><td>+254</td><td>Kenya</td><td>+256</td><td>Uganda</td></tr>
+        <tr><td>+250</td><td>Rwanda</td><td>+267</td><td>Botswana</td><td>+266 / +268</td><td>Lesotho / Eswatini</td></tr>
+        <tr><td>+261</td><td>Madagascar</td><td>+996</td><td>Kyrgyzstan</td><td>+975</td><td>Bhutan</td></tr>
+      </table>
+      <p><b>Domains</b>: .es Spain · .pt Portugal · .fr France · .de Germany · .it Italy · .nl Netherlands · .be Belgium · .uk/.co.uk UK · .ie Ireland · .pl Poland · .cz Czechia · .sk Slovakia · .hu Hungary · .ro Romania · .hr Croatia · .si Slovenia · .rs Serbia · .bg Bulgaria · .gr Greece · .tr Turkey · .ru Russia · .ua Ukraine · .se Sweden · .no Norway · .fi Finland · .dk Denmark · .is Iceland · .ee/.lv/.lt Baltics · .ch Switzerland · .at Austria · .us USA · .ca Canada · .mx Mexico · .br Brazil · .ar Argentina · .cl Chile · .co Colombia · .pe Peru · .ec Ecuador · .bo Bolivia · .uy Uruguay · .jp Japan · .kr Korea · .tw Taiwan · .hk Hong Kong · .sg Singapore · .my Malaysia · .id Indonesia · .th Thailand · .ph Philippines · .vn Vietnam · .kh Cambodia · .la Laos · .in India · .lk Sri Lanka · .bd Bangladesh · .np Nepal · .mn Mongolia · .kz Kazakhstan · .kg Kyrgyzstan · .il Israel · .jo Jordan · .ae UAE · .qa Qatar · .om Oman · .tn Tunisia · .sn Senegal · .gh Ghana · .ng Nigeria · .ke Kenya · .ug Uganda · .rw Rwanda · .za South Africa · .bw Botswana · .au Australia · .nz New Zealand.</p>
+      <img class="map" src="clues/calling-codes.jpg" alt="Calling codes map" loading="lazy" />
+      <img class="map" src="clues/spanish.jpg" alt="Spanish-speaking countries" loading="lazy" />
+      <img class="map" src="clues/portuguese.jpg" alt="Portuguese-speaking countries" loading="lazy" />
+    </div>
+  </details>
+
+  <p class="note">Sources used for the community observations: GeoGuessr player guides (PlonkIt, GeoHints, GeoGhost, ReverseImageLocation), Wikipedia on road markings, plus general knowledge. Facts marked solid are stable rules; bollard, pole and camera metas change as Google re-drives countries.</p>
+</div>
+<script>
+  // Simple filter: show only rows / list items / cards containing the query, open matching sections.
+  const q = document.getElementById("q");
+  const sections = [...document.querySelectorAll("details")];
+  q.addEventListener("input", () => {
+    const t = q.value.trim().toLowerCase();
+    sections.forEach((d) => {
+      const items = [...d.querySelectorAll("tr:not(:first-child), li, .card")];
+      let any = false;
+      items.forEach((el) => {
+        const hit = !t || el.textContent.toLowerCase().includes(t);
+        el.classList.toggle("hide", !hit);
+        if (hit) any = true;
+      });
+      const inSummary = d.querySelector("summary").textContent.toLowerCase().includes(t);
+      const paragraphs = [...d.querySelectorAll("p")].some((p) => !t || p.textContent.toLowerCase().includes(t));
+      const show = !t || any || inSummary || paragraphs;
+      d.classList.toggle("hide", !show);
+      if (t && show) d.open = true;
+      if (!t) d.open = d.id === "flow";
+    });
+  });
+  // Embedded inside the game (iframe): show the Back button and let Esc close the overlay.
+  const embedded = window.parent && window.parent !== window;
+  const closeBtn = document.getElementById("close");
+  const tellParent = () => { try { window.parent.postMessage({ panoguru: "close-clues" }, "*"); } catch (e) {} };
+  if (embedded) {
+    closeBtn.classList.remove("hidden");
+    closeBtn.addEventListener("click", tellParent);
+    try { window.parent.postMessage({ panoguru: "clues-ready" }, "*"); } catch (e) {}
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && embedded) { e.preventDefault(); tellParent(); } });
+  // Open a section when arriving via a chip link
+  document.querySelectorAll(".chips a").forEach((a) => a.addEventListener("click", () => { const d = document.querySelector(a.getAttribute("href")); if (d) d.open = true; }));
+</script>
+</body>
+</html>

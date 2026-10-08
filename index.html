@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=16" />
+  <link rel="stylesheet" href="style.css?v=17" />
 </head>
 <body>
   <!-- Street View panorama (single instance, reused for every round) -->
@@ -36,6 +36,7 @@
       <button id="btn-play" class="btn btn-primary btn-lg" type="button">Play</button>
       <div class="row row-tight">
         <button id="btn-profile" class="btn btn-ghost btn-sm" type="button">&#x1F4CA; My stats</button>
+        <button id="btn-clues" class="btn btn-ghost btn-sm" type="button">&#x1F4D6; Clue book</button>
         <button id="btn-signin" class="btn btn-ghost btn-sm hidden" type="button"><span class="g-logo">G</span> Sign in with Google</button>
         <div id="user-chip" class="user-chip hidden"><img id="user-photo" class="user-photo" alt="" width="24" height="24" /><span id="user-name"></span><button id="btn-signout" class="link-btn" type="button">Sign out</button></div>
       </div>
@@ -45,6 +46,7 @@
         <ul>
           <li>Drag to look around, pinch or scroll to zoom, tap the arrows to move. <b>&#x21BA; Start</b> returns to the start; press <b>R</b> if the picture ever goes black.</li>
           <li>Press <b>Open map</b>, tap where you think you are, then <b>Guess</b>.</li>
+          <li>Stuck? Press <b>&#x1F4D6;</b> (or <b>C</b>) for the clue book: driving side, scripts, signs, bollards, plates. It opens over the game and you continue where you were.</li>
           <li>Score = 5000 &middot; e<sup>&minus;distance / 1493 km</sup>. Within 25 m = perfect.</li>
         </ul>
       </details>
@@ -120,6 +122,7 @@
         </svg>
       </div>
       <button id="btn-return" class="btn btn-ghost btn-sm" type="button" title="Return to the starting point">&#x21BA; Start</button>
+      <button id="btn-hud-clues" class="btn btn-ghost btn-sm hud-icon" type="button" title="Clue book (C)">&#x1F4D6;</button>
       <button id="btn-hud-profile" class="btn btn-ghost btn-sm hud-profile" type="button" title="My profile and stats"><img id="hud-avatar" class="hud-avatar hidden" alt="" width="22" height="22" /><span id="hud-profile-icon">&#x1F464;</span></button>
     </div>
     <button id="btn-open-map" class="btn btn-primary map-open-btn hidden" type="button">&#x1F5FA;&#xFE0F; Open map</button>
@@ -165,6 +168,12 @@
     <button id="btn-peek-next" class="btn btn-primary" type="button">Next round &#x2192;</button>
   </div>
 
+  <!-- Clue book overlay (iframe loaded on first use) -->
+  <div id="clues-overlay" class="clues-overlay hidden" role="dialog" aria-label="Clue book">
+    <iframe id="clues-frame" title="Clue book"></iframe>
+    <button id="btn-clues-close" class="btn btn-primary btn-sm clues-close" type="button" title="Back to the game (Esc)">&#x2715; Back to game</button>
+  </div>
+
   <!-- Loading overlay -->
   <div id="loading" class="loading hidden" role="status">
     <div class="spinner"></div>
@@ -173,7 +182,7 @@
 
   <div id="toast" class="toast hidden" role="alert"></div>
 
-  <script src="config.js?v=16"></script>
-  <script type="module" src="app.js?v=16"></script>
+  <script src="config.js?v=17"></script>
+  <script type="module" src="app.js?v=17"></script>
 </body>
 </html>

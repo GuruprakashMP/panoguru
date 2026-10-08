@@ -243,6 +243,13 @@ a { color: var(--primary-hover); }
 
 /* Profile button in the game bar */
 .hud-profile { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; }
+.hud-icon { padding: 5px 9px; font-size: 1rem; }
+@media (max-width: 420px) { .hud { gap: 5px; } .chip { padding: 6px 9px; font-size: 0.82rem; } #btn-return { padding-left: 8px; padding-right: 8px; } }
+
+/* Clue book overlay */
+.clues-overlay { position: fixed; inset: 0; z-index: 45; background: var(--bg); }
+.clues-overlay iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+.clues-close { position: fixed; right: 12px; bottom: calc(12px + var(--safe-b)); z-index: 46; box-shadow: var(--shadow); }
 .hud-avatar { border-radius: 50%; display: block; }
 
 /* verification links */

@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=16";
-import { createGoogleProvider } from "./google-provider.js?v=16";
-import { createMockProvider } from "./mock-provider.js?v=16";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=16";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=17";
+import { createGoogleProvider } from "./google-provider.js?v=17";
+import { createMockProvider } from "./mock-provider.js?v=17";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=17";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -21,6 +21,7 @@ const ui = {
   play: $("btn-play"), best: $("best-score"), bestLine: $("best-line"), linkKey: $("link-key"),
   apiKey: $("api-key"), saveKey: $("btn-save-key"), mock: $("btn-mock"), setupBack: $("btn-setup-back"),
   hudRound: $("hud-round"), hudRounds: $("hud-rounds"), hudScore: $("hud-score"), ret: $("btn-return"), hudProfile: $("btn-hud-profile"), hudAvatar: $("hud-avatar"), hudProfileIcon: $("hud-profile-icon"),
+  hudClues: $("btn-hud-clues"), cluesBtn: $("btn-clues"), cluesOverlay: $("clues-overlay"), cluesFrame: $("clues-frame"), cluesClose: $("btn-clues-close"),
   resDistance: $("res-distance"), resPoints: $("res-points"), resCountry: $("res-country"), resLinks: $("res-links"), next: $("btn-next"),
   viewPlace: $("btn-view-place"), peekBar: $("peek-bar"), peekBack: $("btn-peek-back"), peekNext: $("btn-peek-next"),
   finalScore: $("final-score"), finalMax: $("final-max"), finalRounds: $("final-rounds"), again: $("btn-again"), share: $("btn-share"),
@@ -449,6 +450,19 @@ function closeProfile() {
   }
 }
 
+// ---------- clue book (clues.html in an overlay; the round keeps running underneath) ----------
+function openClues() {
+  if (!ui.cluesFrame.getAttribute("src")) ui.cluesFrame.src = "clues.html?v=17";
+  ui.cluesOverlay.classList.remove("hidden");
+  setTimeout(() => { try { ui.cluesFrame.contentWindow?.focus(); } catch (e) {} }, 50);
+}
+function closeClues() {
+  ui.cluesOverlay.classList.add("hidden");
+  // give keyboard focus back to the game page (otherwise keys keep going to the hidden iframe)
+  try { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); } catch (e) {}
+}
+function cluesOpen() { return !ui.cluesOverlay.classList.contains("hidden"); }
+
 function applyUser(user) {
   state.user = user || null;
   ui.signIn.classList.toggle("hidden", !state.cloud || !!user);
@@ -500,6 +514,14 @@ function bind() {
   ui.profileBtn.addEventListener("click", showProfile);
   ui.profileBack.addEventListener("click", closeProfile);
   ui.hudProfile.addEventListener("click", showProfile);
+  ui.hudClues.addEventListener("click", openClues);
+  ui.cluesBtn.addEventListener("click", openClues);
+  ui.cluesClose.addEventListener("click", closeClues);
+  window.addEventListener("message", (e) => {
+    if (!e.data || !e.data.panoguru) return;
+    if (e.data.panoguru === "close-clues") closeClues();
+    if (e.data.panoguru === "clues-ready") ui.cluesClose.classList.add("hidden"); // the clue book has its own Back button; keep ours only as a fallback
+  });
   ui.signIn.addEventListener("click", doSignIn);
   ui.profileSignIn.addEventListener("click", doSignIn);
   ui.signOut.addEventListener("click", doSignOut);
@@ -518,6 +540,10 @@ function bind() {
   ui.setupBack.addEventListener("click", () => showScreen("menu"));
   ui.linkKey.addEventListener("click", (e) => { e.preventDefault(); ui.apiKey.value = storage(true, LS_KEY) || ""; showScreen("setup"); });
   document.addEventListener("keydown", (e) => {
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (e.key === "Escape" && cluesOpen()) { closeClues(); return; }
+    if ((e.key === "c" || e.key === "C") && !e.ctrlKey && !e.metaKey && !e.altKey && !cluesOpen() && ui.screens.setup.classList.contains("hidden")) { openClues(); return; }
+    if (cluesOpen()) return;
     if (e.key === "Enter" && !ui.screens.game.classList.contains("hidden") && state.guess) submitGuess();
     if (e.key === "Escape" && ui.mapWrap.classList.contains("expanded")) setMapMode("mini");
     if ((e.key === "r" || e.key === "R") && !ui.screens.game.classList.contains("hidden") && !e.ctrlKey && !e.metaKey) state.provider?.refreshView?.();
