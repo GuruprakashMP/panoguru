@@ -1,8 +1,8 @@
 // PanoGuru game controller.
-import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=18";
-import { createGoogleProvider } from "./google-provider.js?v=18";
-import { createMockProvider } from "./mock-provider.js?v=18";
-import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=18";
+import { haversineKm, scoreForDistance, formatDistance, formatPoints, weightedPick, randomPointInCountry, countryAt } from "./geo.js?v=19";
+import { createGoogleProvider } from "./google-provider.js?v=19";
+import { createMockProvider } from "./mock-provider.js?v=19";
+import { emptyStats, applyGame, summarize, loadLocal, saveLocal, createCloud } from "./stats.js?v=19";
 
 const CFG = Object.assign({
   appName: "PanoGuru", tagline: "Guess the World", googleMapsApiKey: "",
@@ -452,7 +452,7 @@ function closeProfile() {
 
 // ---------- clue book (clues.html in an overlay; the round keeps running underneath) ----------
 function openClues() {
-  if (!ui.cluesFrame.getAttribute("src")) ui.cluesFrame.src = "clues.html?v=18";
+  if (!ui.cluesFrame.getAttribute("src")) ui.cluesFrame.src = "clues.html?v=19";
   ui.cluesOverlay.classList.remove("hidden");
   setTimeout(() => { try { ui.cluesFrame.contentWindow?.focus(); } catch (e) {} }, 50);
 }
